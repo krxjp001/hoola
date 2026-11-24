@@ -801,7 +801,7 @@
           <ul class="list-disc pl-4 space-y-1 text-slate-300">
             <li><strong>훌라 (2배):</strong> 이전 턴에 한 번도 등록·붙이기를 하지 않고, <strong>단 한 번의 턴에</strong> 8장을 모두 등록하거나 7장을 등록하고 마지막 1장을 버려 손패를 비우면 훌라 승리!</li>
             <li><strong>땡큐 (Thank You):</strong> <strong>아무 턴(전투)</strong> 설정 시 다른 유저 차례에도 버림 패를 땡큐해 턴을 가져올 수 있으며, <strong>내 턴만(정통)</strong> 설정 시 내 차례가 왔을 때 앞사람이 버린 카드만 땡큐로 주울 수 있습니다.</li>
-            <li><strong>스톱 (STOP):</strong> 1회 이상 등록을 마치고 첫 1바퀴가 지난 뒤(2바퀴째부터), 내 차례 <strong>카드를 뽑기 전(또는 뽑고 등록 후)</strong> 남은 손패 합이 기준(<strong>10점 이하</strong> 또는 <strong>15점 이하</strong>)일 때 선언 가능. 최저점이면 승리, 더 낮은(또는 동점) 상대가 있으면 <strong>독박</strong> 패배!</li>
+            <li><strong>스톱 (STOP):</strong> 첫 턴에는 불가하며 <strong>2번째 턴부터</strong>, 1회 이상 등록을 마친 상태에서 내 차례 <strong>카드를 뽑기 전(액션 전)</strong> 남은 손패 합이 기준(<strong>10점 이하</strong> 또는 <strong>15점 이하</strong>)일 때만 선언 가능. 더미에서 카드를 뽑거나 땡큐·등록·붙이기 등 액션을 취한 뒤에는 해당 턴에 스톱 불가. 최저점이면 승리, 더 낮은(또는 동점) 상대가 있으면 <strong>독박</strong> 패배!</li>
           </ul>
         </div>
         <div class="bg-white/5 border border-white/10 rounded-xl p-3">
@@ -2693,6 +2693,8 @@
             totalScore: p.totalScore,
             hasMeldedBeforeThisTurn: p.hasMeldedBeforeThisTurn,
             meldedThisTurn: p.meldedThisTurn,
+            turnCount: p.turnCount || 0,
+            actedThisTurn: Boolean(p.actedThisTurn),
             lastAction: p.lastAction,
             handCount: p.hand.length,
             hand: (idx === myIdx || state.phase === 'round_over') ? p.hand : []
@@ -3098,6 +3100,8 @@
           totalScore: 0,
           hasMeldedBeforeThisTurn: false,
           meldedThisTurn: false,
+          turnCount: 0,
+          actedThisTurn: false,
           lastAction: ''
         }));
 
@@ -3133,6 +3137,8 @@
           p.hand = sortCardsByRank(state.deck.splice(0, 7));
           p.hasMeldedBeforeThisTurn = false;
           p.meldedThisTurn = false;
+          p.turnCount = 0;
+          p.actedThisTurn = false;
           p.lastAction = '';
         }
 
@@ -3169,7 +3175,9 @@
         state.turnCount++;
 
         const p = state.players[playerIdx];
+        p.turnCount = (p.turnCount || 0) + 1;
         p.meldedThisTurn = false;
+        p.actedThisTurn = false;
 
         if (net.mode === 'online') {
           renderGame();
@@ -3221,6 +3229,7 @@
         const p = state.players[playerIdx];
         const drawn = state.deck.pop();
         p.hand.push(drawn);
+        p.actedThisTurn = true;
         p.lastAction = '카드 뽑기';
         state.phase = 'action';
         state.hintCardIds.clear();
@@ -3248,8 +3257,13 @@
           return;
         }
 
+        const isSameTurnPickup = state.phase === 'draw' && state.currentPlayerIdx === playerIdx;
         state.discardPile.pop();
         p.hand.push(topCard);
+        if (!isSameTurnPickup) {
+          p.turnCount = (p.turnCount || 0) + 1;
+        }
+        p.actedThisTurn = true;
         state.currentPlayerIdx = playerIdx;
         state.phase = 'action';
         state.mustUseCardId = topCard.id;
@@ -3286,6 +3300,7 @@
         const idSet = new Set(cardIds);
         p.hand = p.hand.filter(c => !idSet.has(c.id));
         p.meldedThisTurn = true;
+        p.actedThisTurn = true;
         p.lastAction = val.label;
 
         if (state.mustUseCardId && idSet.has(state.mustUseCardId)) {
@@ -3342,6 +3357,7 @@
         const idSet = new Set(cardIds);
         p.hand = p.hand.filter(c => !idSet.has(c.id));
         p.meldedThisTurn = true;
+        p.actedThisTurn = true;
         p.lastAction = '붙이기!';
 
         if (state.mustUseCardId && idSet.has(state.mustUseCardId)) {
@@ -3386,6 +3402,7 @@
         if (idx === -1) return false;
 
         const [discarded] = p.hand.splice(idx, 1);
+        p.actedThisTurn = true;
         state.discardPile.push(discarded);
         p.lastAction = `${RANK_LABELS[discarded.rank]}${discarded.rank === 0 ? '' : SUIT_META[discarded.suit].symbol} 버림`;
         if (playerIdx === state.viewingPlayerIdx) {
@@ -3464,9 +3481,15 @@
       }
 
       function canPlayerStop(player) {
-        if (state.phase !== 'draw' && state.phase !== 'action') return false;
-        if (state.mustUseCardId) return false;
-        if (state.turnCount <= state.players.length) return false;
+        if (!player) return false;
+        // 공식 룰: 더미에서 카드를 뽑거나 땡큐·등록·붙이기 등 특정 액션을 취한 뒤에는 스톱 불가
+        if (state.phase !== 'draw') return false;
+        if (player.actedThisTurn || player.meldedThisTurn || state.mustUseCardId) return false;
+        // 공식 룰: 첫 턴 불가, 자신의 2번째 턴부터 가능
+        const playerTurns = typeof player.turnCount === 'number'
+          ? player.turnCount
+          : Math.ceil(state.turnCount / Math.max(1, state.players.length));
+        if (playerTurns < 2) return false;
         if (!hasPlayerRegistered(player)) return false;
         const pts = handPoints(player.hand);
         return pts <= getActiveStopLimit();
@@ -3532,7 +3555,13 @@
         const caller = state.players[playerIdx];
         if (!canPlayerStop(caller)) {
           if (playerIdx === state.viewingPlayerIdx) {
-            showToast(`1회 이상 등록 후(2바퀴째부터) ${getActiveStopLimit()}점 이하일 때 스톱 가능합니다.`, 'warn');
+            if (state.phase !== 'draw' || caller.actedThisTurn || caller.meldedThisTurn || state.mustUseCardId) {
+              showToast('카드를 뽑거나 액션을 취한 뒤에는 스톱할 수 없습니다. 다음 턴 시작 시 선언하세요.', 'warn');
+            } else if ((caller.turnCount || 0) < 2) {
+              showToast('첫 턴에는 스톱할 수 없습니다. 2번째 턴부터 가능합니다.', 'warn');
+            } else {
+              showToast(`1회 이상 등록 후 2번째 턴부터, 카드 뽑기 전 ${getActiveStopLimit()}점 이하일 때 스톱 가능합니다.`, 'warn');
+            }
             sfx.error();
           }
           return;
@@ -3657,6 +3686,7 @@
             if (ai.hasMeldedBeforeThisTurn || meldPts >= 12 || ai.hand.length <= 4) {
               state.discardPile.pop();
               ai.hand.push(topCard);
+              ai.actedThisTurn = true;
               state.phase = 'action';
               state.mustUseCardId = topCard.id;
               ai.lastAction = '땡큐!';
@@ -3675,6 +3705,7 @@
           }
           const drawn = state.deck.pop();
           ai.hand.push(drawn);
+          ai.actedThisTurn = true;
           ai.lastAction = '드로우';
           state.phase = 'action';
           sfx.draw();
@@ -3744,11 +3775,6 @@
 
         state.aiTimer = setTimeout(() => {
           if (state.phase !== 'action' || state.currentPlayerIdx !== aiIdx) return;
-          const pts = handPoints(ai.hand);
-          if (canPlayerStop(ai) && pts <= 5 && state.turnCount >= state.players.length * 2) {
-            executeStop(aiIdx);
-            return;
-          }
           const discardCard = chooseAIDiscard(ai.hand);
           if (discardCard) executeDiscard(aiIdx, discardCard.id);
         }, didAction ? 550 : 380);
@@ -4424,7 +4450,8 @@
       });
 
       document.getElementById('btn-stop').addEventListener('click', () => {
-        if ((state.phase !== 'draw' && state.phase !== 'action') || state.currentPlayerIdx !== state.viewingPlayerIdx) return;
+        const viewer = state.players[state.viewingPlayerIdx];
+        if (state.phase !== 'draw' || state.currentPlayerIdx !== state.viewingPlayerIdx || !canPlayerStop(viewer)) return;
         if (net.mode === 'online' && net.role === 'guest') {
           sendGuestAction({ action: 'stop' });
         } else {
