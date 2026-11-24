@@ -267,6 +267,9 @@
         <span>💬</span><span class="hidden sm:inline ml-1">채팅</span>
         <span id="chat-unread-dot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 border border-slate-950"></span>
       </button>
+      <button id="btn-recharge" type="button" class="hidden items-center px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-xs font-bold text-emerald-200 transition whitespace-nowrap" title="50,000P 이하일 때 50,000P로 충전">
+        충전
+      </button>
       <button id="btn-rules" type="button" class="hidden items-center px-2 sm:px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-xs font-semibold text-slate-100 transition whitespace-nowrap">
         규칙
       </button>
@@ -1224,6 +1227,7 @@
       function syncHeaderUI() {
         const loggedIn = Boolean(auth.user);
         const scr = state.screen;
+        const isLobby = scr === 'lobby';
         const isGame = scr === 'game';
         const isWaiting = scr === 'waiting';
 
@@ -1232,6 +1236,7 @@
         const roundBadge = document.getElementById('round-badge');
         const btnFs = document.getElementById('btn-game-fullscreen');
         const btnChat = document.getElementById('btn-chat-toggle');
+        const btnRecharge = document.getElementById('btn-recharge');
         const btnRules = document.getElementById('btn-rules');
         const btnLobby = document.getElementById('btn-lobby');
         const btnLogout = document.getElementById('btn-logout');
@@ -1241,6 +1246,19 @@
           headerBadge.classList.toggle('inline-flex', loggedIn);
           if (loggedIn) {
             headerBadge.textContent = `${auth.user.id} · ${Number(auth.user.points).toLocaleString('ko-KR')}P`;
+          }
+        }
+
+        // 충전 버튼: 로그인 후 라운지(로비) 상단 규칙 왼쪽에 표시
+        if (btnRecharge) {
+          const showRecharge = loggedIn && isLobby;
+          btnRecharge.classList.toggle('hidden', !showRecharge);
+          btnRecharge.classList.toggle('inline-flex', showRecharge);
+          if (showRecharge) {
+            const canTopUp = Number(auth.user.points) < INITIAL_POINTS;
+            btnRecharge.className = canTopUp
+              ? 'inline-flex items-center px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/35 border border-emerald-400/50 text-xs font-bold text-emerald-200 transition whitespace-nowrap'
+              : 'inline-flex items-center px-2 sm:px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-semibold text-slate-300 transition whitespace-nowrap';
           }
         }
 
@@ -4546,6 +4564,28 @@
 
       document.getElementById('btn-result-lobby').addEventListener('click', returnToLobby);
       document.getElementById('btn-lobby').addEventListener('click', returnToLobby);
+
+      document.getElementById('btn-recharge').addEventListener('click', () => {
+        if (!auth.user) return;
+        sfx.init();
+        const curPts = Number(auth.user.points) || 0;
+        if (curPts > INITIAL_POINTS) {
+          showToast('보유 포인트가 50,000P를 초과해 충전할 수 없습니다.', 'info');
+          sfx.error();
+          return;
+        }
+        if (curPts === INITIAL_POINTS) {
+          showToast('이미 50,000P를 보유하고 있습니다.', 'info');
+          sfx.select();
+          return;
+        }
+        const delta = INITIAL_POINTS - curPts;
+        auth.user.points = INITIAL_POINTS;
+        AccountDB.addPoints(auth.user.id, delta, `recharge_${Date.now()}`);
+        syncHeaderUI();
+        sfx.meld();
+        showToast(`${delta.toLocaleString('ko-KR')}P 충전 완료! 보유 50,000P`, 'success');
+      });
 
       document.getElementById('btn-rules').addEventListener('click', () => {
         document.getElementById('rules-modal').classList.remove('hidden');
