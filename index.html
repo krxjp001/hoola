@@ -839,7 +839,7 @@
           <ul class="list-disc pl-4 space-y-1 text-slate-300">
             <li><strong>훌라 (2배):</strong> 이전 턴에 한 번도 등록·붙이기를 하지 않고, <strong>단 한 번의 턴에</strong> 8장을 모두 등록하거나 7장을 등록하고 마지막 1장을 버려 손패를 비우면 훌라 승리!</li>
             <li><strong>땡큐 (Thank You):</strong> 상대가 버린 카드로 즉시 등록 또는 붙이기가 가능하면 <strong>땡큐</strong>를 외쳐 그 카드를 가져올 수 있습니다.</li>
-            <li><strong>스톱 (STOP):</strong> 첫 1바퀴가 지난 뒤(2바퀴째부터) 남은 손패 합이 대기실 설정 기준(<strong>10점 이하</strong> 또는 <strong>15점 이하</strong>)일 때 선언 가능. 최저점이면 승리, 더 낮은(또는 동점) 상대가 있으면 <strong>독박</strong> 패배!</li>
+            <li><strong>스톱 (STOP):</strong> 1회 이상 등록을 마치고 첫 1바퀴가 지난 뒤(2바퀴째부터), 내 차례 <strong>카드를 뽑기 전(또는 뽑고 등록 후)</strong> 남은 손패 합이 기준(<strong>10점 이하</strong> 또는 <strong>15점 이하</strong>)일 때 선언 가능. 최저점이면 승리, 더 낮은(또는 동점) 상대가 있으면 <strong>독박</strong> 패배!</li>
           </ul>
         </div>
         <div class="bg-white/5 border border-white/10 rounded-xl p-3">
@@ -1707,11 +1707,13 @@
         return net.room.allowThankYou !== false;
       }
 
-      function checkThankYouOption(playerHand, discardedCard) {
+      function checkThankYouOption(playerHand, discardedCard, canAttach = false) {
         if (!getActiveRuleAllowThankYou()) return null;
-        const attachMatches = findAttachableMelds([discardedCard]);
-        if (attachMatches.length > 0) {
-          return { actionType: 'attach', targetMeldId: attachMatches[0].meld.id, cards: [discardedCard] };
+        if (canAttach) {
+          const attachMatches = findAttachableMelds([discardedCard]);
+          if (attachMatches.length > 0) {
+            return { actionType: 'attach', targetMeldId: attachMatches[0].meld.id, cards: [discardedCard] };
+          }
         }
         const tempHand = [...playerHand, discardedCard];
         const melds = findPossibleMeldsInHand(tempHand, discardedCard.id);
@@ -3243,7 +3245,7 @@
         if (state.discardPile.length === 0) return;
         const topCard = state.discardPile[state.discardPile.length - 1];
         const p = state.players[playerIdx];
-        const opt = checkThankYouOption(p.hand, topCard);
+        const opt = checkThankYouOption(p.hand, topCard, hasPlayerRegistered(p));
         if (!opt) {
           if (playerIdx === state.viewingPlayerIdx) {
             showToast('버림 패로 즉시 등록하거나 붙일 수 없습니다.', 'error');
@@ -3324,6 +3326,13 @@
 
       function executeAttach(playerIdx, cardIds, targetMeldId) {
         const p = state.players[playerIdx];
+        if (!hasPlayerRegistered(p)) {
+          if (playerIdx === state.viewingPlayerIdx && !p.isAI) {
+            showToast('공식 룰: 먼저 1회 이상 등록한 뒤에 테이블 패에 붙일 수 있습니다.', 'warn');
+            sfx.error();
+          }
+          return false;
+        }
         const meld = state.tableMelds.find(m => m.id === targetMeldId);
         if (!meld) return false;
         const cards = p.hand.filter(c => cardIds.includes(c.id));
@@ -3428,7 +3437,7 @@
           const idx = (discarderIdx + offset) % state.players.length;
           const p = state.players[idx];
           if (p.isAI) continue;
-          const opt = checkThankYouOption(p.hand, discardedCard);
+          const opt = checkThankYouOption(p.hand, discardedCard, hasPlayerRegistered(p));
           if (opt) list.push({ candidateIdx: idx, option: opt });
         }
         return list;
@@ -3457,10 +3466,17 @@
         return Number(net.room.stopLimit) || 10;
       }
 
+      function hasPlayerRegistered(player) {
+        return Boolean(player && (player.hasMeldedBeforeThisTurn || player.meldedThisTurn));
+      }
+
       function canPlayerStop(player) {
-        if (state.phase !== 'action') return false;
+        if (state.phase !== 'draw' && state.phase !== 'action') return false;
         if (state.mustUseCardId) return false;
+        // 첫 1바퀴(모든 플레이어가 최소 1턴씩 돌기 전)에는 스톱 불가
         if (state.turnCount <= state.players.length) return false;
+        // 공식 룰: 1회 이상 등록을 마친 상태에서 손패 합계가 기준 이하일 때 스톱 가능 (카드 뽑기 전 포함)
+        if (!hasPlayerRegistered(player)) return false;
         const pts = handPoints(player.hand);
         return pts <= getActiveStopLimit();
       }
@@ -3530,7 +3546,7 @@
         const caller = state.players[playerIdx];
         if (!canPlayerStop(caller)) {
           if (playerIdx === state.viewingPlayerIdx) {
-            showToast(`첫 1바퀴 이후 손패 합계가 ${getActiveStopLimit()}점 이하일 때만 스톱할 수 있습니다.`, 'warn');
+            showToast(`1회 이상 등록 후(2바퀴째부터) 손패 합계가 ${getActiveStopLimit()}점 이하일 때 스톱할 수 있습니다.`, 'warn');
             sfx.error();
           }
           return;
@@ -3641,10 +3657,16 @@
         if (state.phase === 'round_over') return;
         const ai = state.players[aiIdx];
 
+        // 공식 룰: 카드 뽑기 전 손패가 충분히 낮으면 바로 스톱!
+        if (canPlayerStop(ai) && handPoints(ai.hand) <= Math.min(6, getActiveStopLimit())) {
+          executeStop(aiIdx);
+          return;
+        }
+
         let pickedUp = false;
         if (state.discardPile.length > 0) {
           const topCard = state.discardPile[state.discardPile.length - 1];
-          const opt = checkThankYouOption(ai.hand, topCard);
+          const opt = checkThankYouOption(ai.hand, topCard, hasPlayerRegistered(ai));
           if (opt) {
             const meldPts = opt.meldCards ? handPoints(opt.meldCards) : cardPoints(topCard);
             if (ai.hasMeldedBeforeThisTurn || meldPts >= 12 || ai.hand.length <= 4) {
@@ -3911,7 +3933,7 @@
         const canPickupDiscard =
           canDrawDeck &&
           state.discardPile.length > 0 &&
-          Boolean(checkThankYouOption(viewer.hand, state.discardPile[state.discardPile.length - 1]));
+          Boolean(checkThankYouOption(viewer.hand, state.discardPile[state.discardPile.length - 1], hasPlayerRegistered(viewer)));
 
         if (state.discardPile.length > 0) {
           const top = state.discardPile[state.discardPile.length - 1];
@@ -3926,7 +3948,7 @@
         const meldsArea = document.getElementById('table-melds-area');
         document.getElementById('meld-count-badge').textContent = `${state.tableMelds.length}개`;
         const selectedCards = viewer.hand.filter(c => state.selectedCardIds.has(c.id));
-        const attachMatches = (isMyTurn && state.phase === 'action' && selectedCards.length > 0)
+        const attachMatches = (isMyTurn && state.phase === 'action' && selectedCards.length > 0 && hasPlayerRegistered(viewer))
           ? findAttachableMelds(selectedCards)
           : [];
         const attachableIds = new Set(attachMatches.map(m => m.meld.id));
@@ -4059,9 +4081,13 @@
         } else if (!isMyTurn) {
           feedback.textContent = `${state.players[state.currentPlayerIdx]?.name || '상대'}님의 차례를 기다리는 중...`;
         } else if (state.phase === 'draw') {
-          feedback.textContent = canPickupDiscard
-            ? '중앙 더미에서 뽑거나, 반짝이는 버림 패를 눌러 땡큐하세요!'
-            : '중앙 카드 더미를 클릭해 1장을 뽑아주세요.';
+          if (canStop) {
+            feedback.textContent = `🔥 지금 카드를 뽑지 않고 바로 [스톱!]을 외치거나, 카드를 뽑아 진행할 수 있습니다!`;
+          } else {
+            feedback.textContent = canPickupDiscard
+              ? '중앙 더미에서 뽑거나, 반짝이는 버림 패를 눌러 땡큐하세요!'
+              : '중앙 카드 더미를 클릭해 1장을 뽑아주세요.';
+          }
         } else if (selectedCards.length === 0) {
           feedback.textContent = state.mustUseCardId
             ? '땡큐로 가져온 카드를 선택해 등록하거나 테이블에 붙여주세요.'
@@ -4471,7 +4497,7 @@
       });
 
       document.getElementById('btn-stop').addEventListener('click', () => {
-        if (state.phase !== 'action' || state.currentPlayerIdx !== state.viewingPlayerIdx) return;
+        if ((state.phase !== 'draw' && state.phase !== 'action') || state.currentPlayerIdx !== state.viewingPlayerIdx) return;
         if (net.mode === 'online' && net.role === 'guest') {
           sendGuestAction({ action: 'stop' });
         } else {
@@ -4524,17 +4550,19 @@
           return;
         }
 
-        for (const c of viewer.hand) {
-          if (state.mustUseCardId && c.id !== state.mustUseCardId) continue;
-          const matches = findAttachableMelds([c]);
+        if (hasPlayerRegistered(viewer)) {
+          for (const c of viewer.hand) {
+            if (state.mustUseCardId && c.id !== state.mustUseCardId) continue;
+            const matches = findAttachableMelds([c]);
           if (matches.length > 0) {
             state.selectedCardIds.clear();
             state.hintCardIds.add(c.id);
             state.selectedCardIds.add(c.id);
-            showToast('💡 테이블 등록 패에 붙일 수 있는 카드를 찾았습니다!', 'success');
-            sfx.select();
-            renderGame();
-            return;
+              showToast('💡 테이블 등록 패에 붙일 수 있는 카드를 찾았습니다!', 'success');
+              sfx.select();
+              renderGame();
+              return;
+            }
           }
         }
         showToast('현재 바로 등록하거나 붙일 수 있는 조합이 없습니다. 불필요한 카드를 버려보세요.', 'info');
