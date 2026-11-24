@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>훌라 5 (HULA 5) — 최대 5인 온라인 대기실 &amp; 훌라 카드게임</title>
+  <title>훌라 5 — 최대 5인 온라인 대기실 &amp; 훌라 카드게임</title>
   <meta name="theme-color" content="#071910" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -215,7 +215,7 @@
       </div>
       <div class="truncate">
         <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-amber-100 leading-tight truncate">
-          훌라 5 <span class="text-amber-400 font-semibold text-xs ml-1 hidden sm:inline">HULA 5-PLAYER ONLINE</span>
+          훌라 5 <span class="text-amber-400 font-semibold text-xs ml-1 hidden sm:inline">5인 온라인 훌라</span>
         </h1>
         <p id="header-status" class="text-[11px] text-emerald-200/80 truncate">2~5인 실시간 멀티플레이 · Q-K-A-2 순환 · 7단독 · 조커</p>
       </div>
@@ -577,7 +577,7 @@
             <div id="draw-deck-slot" class="relative cursor-pointer" title="카드 1장 뽑기">
               <div class="playing-card card-back flex items-center justify-center">
                 <div class="card-back-inner">
-                  <span class="text-amber-300/90 font-black text-lg tracking-tighter">HULA</span>
+                  <span class="text-amber-300/90 font-black text-lg tracking-tighter">훌라</span>
                 </div>
               </div>
             </div>
@@ -645,7 +645,7 @@
             <span id="hand-points-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-emerald-200">
               손패 0점
             </span>
-            <span id="hula-eligible-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-fuchsia-500/20 text-fuchsia-200 border border-fuchsia-400/30">
+            <span id="hoola-eligible-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-fuchsia-500/20 text-fuchsia-200 border border-fuchsia-400/30">
               훌라 가능
             </span>
           </div>
@@ -792,7 +792,7 @@
         <div class="bg-white/5 border border-white/10 rounded-xl p-3">
           <h4 class="font-bold text-amber-300 mb-1">3. 훌라 (원턴 승리) &amp; 스톱 &amp; 땡큐</h4>
           <ul class="list-disc pl-4 space-y-1 text-slate-300">
-            <li><strong>훌라 (HULA! 2배):</strong> 이전 턴에 한 번도 등록·붙이기를 하지 않고, <strong>단 한 번의 턴에</strong> 8장을 모두 등록하거나 7장을 등록하고 마지막 1장을 버려 손패를 비우면 훌라 승리!</li>
+            <li><strong>훌라 (2배):</strong> 이전 턴에 한 번도 등록·붙이기를 하지 않고, <strong>단 한 번의 턴에</strong> 8장을 모두 등록하거나 7장을 등록하고 마지막 1장을 버려 손패를 비우면 훌라 승리!</li>
             <li><strong>땡큐 (Thank You):</strong> 상대가 버린 카드로 즉시 등록 또는 붙이기가 가능하면 <strong>땡큐</strong>를 외쳐 그 카드를 가져올 수 있습니다.</li>
             <li><strong>스톱 (STOP):</strong> 1회 이상 등록했거나 손패 합이 10점 이하일 때 스톱 선언 가능. 최저점이면 승리, 더 낮은(또는 동점) 상대가 있으면 <strong>독박</strong> 패배!</li>
           </ul>
@@ -824,7 +824,7 @@
       const DEFAULT_NAMES = ['나 (Player 1)', '민수', '지은', '도윤', '서연'];
       const AVATARS = ['😎', '🦊', '🐼', '🐯', '🐰', '🐸', '🦁', '🐙'];
       const MQTT_BROKER_URL = 'wss://broker.emqx.io:8084/mqtt';
-      const TOPIC_PREFIX = 'hula5kr/v2/';
+      const TOPIC_PREFIX = 'hoola5kr/v2/';
 
       class SoundFX {
         constructor() {
@@ -879,7 +879,7 @@
       /* ==================== AUTH & ACCOUNT DB ==================== */
       const INITIAL_POINTS = 50000;
       const OFFICIAL_APP_URL = 'https://krxjp001.github.io/hoola/';
-      const AUTH_DB_KEY = 'hula5_accounts_db_v1';
+      const AUTH_DB_KEY = 'hoola5_accounts_db_v1';
       let memoryAccountsDB = {};
 
       const auth = {
@@ -935,10 +935,10 @@
 
       function generateAutoId(db) {
         for (let tries = 0; tries < 50; tries++) {
-          const candidate = `HULA${Math.floor(1000 + Math.random() * 9000)}`;
+          const candidate = `HOOLA${Math.floor(1000 + Math.random() * 9000)}`;
           if (!db[candidate]) return candidate;
         }
-        return `HULA${Date.now().toString().slice(-4)}`;
+        return `HOOLA${Date.now().toString().slice(-4)}`;
       }
 
       function wsAuthRequest(payload, timeoutMs = 1300) {
@@ -971,7 +971,7 @@
             ws.onmessage = ev => {
               let msg;
               try { msg = JSON.parse(ev.data); } catch (_) { return; }
-              if (msg && (msg.t === 'hula_auth_ok' || msg.t === 'hula_auth_err')) {
+              if (msg && (msg.t === 'hoola_auth_ok' || msg.t === 'hoola_auth_err')) {
                 finish(msg);
               }
             };
@@ -1004,16 +1004,16 @@
 
           // Try server DB first if server supports auth messages
           const remote = await wsAuthRequest({
-            t: 'hula_auth_register',
+            t: 'hoola_auth_register',
             id,
             password,
             points: INITIAL_POINTS
           });
 
-          if (remote && remote.t === 'hula_auth_err') {
+          if (remote && remote.t === 'hoola_auth_err') {
             return { ok: false, error: remote.reason || '이미 사용 중인 ID입니다.' };
           }
-          if (remote && remote.t === 'hula_auth_ok' && remote.user) {
+          if (remote && remote.t === 'hoola_auth_ok' && remote.user) {
             db[remote.user.id] = {
               id: remote.user.id,
               password: remote.user.password || password,
@@ -1060,16 +1060,16 @@
 
           // Try server DB first
           const remote = await wsAuthRequest({
-            t: 'hula_auth_login',
+            t: 'hoola_auth_login',
             id,
             password: pw
           });
 
           const db = loadLocalDB();
-          if (remote && remote.t === 'hula_auth_err') {
+          if (remote && remote.t === 'hoola_auth_err') {
             return { ok: false, error: remote.reason || 'ID 또는 비밀번호가 올바르지 않습니다.' };
           }
-          if (remote && remote.t === 'hula_auth_ok' && remote.user) {
+          if (remote && remote.t === 'hoola_auth_ok' && remote.user) {
             db[remote.user.id] = {
               id: remote.user.id,
               password: pw.toUpperCase(),
@@ -1113,7 +1113,7 @@
           }
           // Authenticated point update to server DB (verified by session token + roundKey)
           wsAuthRequest({
-            t: 'hula_auth_update_points',
+            t: 'hoola_auth_update_points',
             id,
             delta,
             roundKey,
@@ -1682,7 +1682,7 @@
       // Unified transport senders (route to server.js WS or EMQX MQTT)
       function netSendBroadcast(payloadObj) {
         if (net.transport === 'custom_ws') {
-          wsSend({ t: 'hula_broadcast', payload: payloadObj });
+          wsSend({ t: 'hoola_broadcast', payload: payloadObj });
         } else {
           mqttPublish(roomTopic(net.roomCode, 'broadcast'), payloadObj);
         }
@@ -1690,7 +1690,7 @@
 
       function netSendToGuest(guestId, payloadObj) {
         if (net.transport === 'custom_ws') {
-          wsSend({ t: 'hula_to_guest', to: guestId, payload: payloadObj });
+          wsSend({ t: 'hoola_to_guest', to: guestId, payload: payloadObj });
         } else {
           mqttPublish(roomTopic(net.roomCode, `to/${guestId}`), payloadObj);
         }
@@ -1698,13 +1698,13 @@
 
       function netSendToHost(payloadObj) {
         if (net.transport === 'custom_ws') {
-          wsSend({ t: 'hula_to_host', payload: payloadObj });
+          wsSend({ t: 'hoola_to_host', payload: payloadObj });
         } else {
           mqttPublish(roomTopic(net.roomCode, 'toHost'), { from: net.myPeerId, ...payloadObj });
         }
       }
 
-      const ROOMS_DB_KEY = 'hula5_rooms_db_v1';
+      const ROOMS_DB_KEY = 'hoola5_rooms_db_v1';
 
       function buildFullRoomSnapshot() {
         return {
@@ -1741,7 +1741,7 @@
           localStorage.setItem(ROOMS_DB_KEY, JSON.stringify(db));
         } catch (_) {}
         if (net.transport === 'custom_ws' && net.ws && net.ws.readyState === WebSocket.OPEN) {
-          wsSend({ t: 'hula_db_save_snapshot', code: net.roomCode, snapshot });
+          wsSend({ t: 'hoola_db_save_snapshot', code: net.roomCode, snapshot });
         }
       }
 
@@ -1780,13 +1780,13 @@
         ws.onmessage = ev => {
           let msg;
           try { msg = JSON.parse(ev.data); } catch (_) { return; }
-          if (msg.t === 'hula_rehosted') {
+          if (msg.t === 'hoola_rehosted') {
             updateConnectionPill('connected');
             broadcastRoomState();
             if (net.room.status === 'playing') broadcastGameState();
-          } else if (msg.t === 'hula_from_guest' && msg.from && msg.payload) {
+          } else if (msg.t === 'hoola_from_guest' && msg.from && msg.payload) {
             handleHostIncomingMessage(msg.from, msg.payload);
-          } else if (msg.t === 'hula_guest_left' && msg.clientId) {
+          } else if (msg.t === 'hoola_guest_left' && msg.clientId) {
             handleHostIncomingMessage(msg.clientId, { type: 'LEAVE' });
           }
         };
@@ -1873,7 +1873,7 @@
         if (net.wsPingTimer) clearInterval(net.wsPingTimer);
         net.wsPingTimer = setInterval(() => {
           if (net.ws && net.ws.readyState === WebSocket.OPEN) {
-            wsSend({ t: 'hula_ping' });
+            wsSend({ t: 'hoola_ping' });
           }
         }, 10000);
       }
@@ -1887,7 +1887,7 @@
           net.ws = ws;
           ws.onopen = () => {
             startWsHeartbeat();
-            wsSend({ t: 'hula_rehost', code: net.roomCode, clientId: net.myPeerId });
+            wsSend({ t: 'hoola_rehost', code: net.roomCode, clientId: net.myPeerId });
           };
           attachHostWsHandlers(ws);
           ws.onerror = () => {};
@@ -1900,7 +1900,7 @@
         if (net.transport === 'custom_ws') {
           if (net.ws && net.ws.readyState === WebSocket.OPEN) {
             updateConnectionPill('connected');
-            wsSend({ t: 'hula_ping' });
+            wsSend({ t: 'hoola_ping' });
             if (net.role === 'host') {
               broadcastRoomState();
               if (net.room.status === 'playing') broadcastGameState();
@@ -1939,7 +1939,7 @@
         if (net.ws) {
           if (sendLeave && net.ws.readyState === WebSocket.OPEN) {
             if (net.role === 'host') persistRoomSnapshotToDB();
-            wsSend({ t: 'hula_leave', clientId: net.myPeerId });
+            wsSend({ t: 'hoola_leave', clientId: net.myPeerId });
           }
           try { net.ws.onclose = null; net.ws.close(); } catch (_) {}
           net.ws = null;
@@ -1992,7 +1992,7 @@
             return;
           }
           net.customWsUrl = wsUrl;
-          try { localStorage.setItem('hula5_ws_url', wsUrl); } catch (_) {}
+          try { localStorage.setItem('hoola5_ws_url', wsUrl); } catch (_) {}
           setOnlineStatus(`내 서버에 대기실 #${code} 생성 중...`);
           try {
             const ws = new WebSocket(wsUrl);
@@ -2012,12 +2012,12 @@
             ws.onopen = () => {
               clearTimeout(connTimeout);
               startWsHeartbeat();
-              wsSend({ t: 'hula_host', code, clientId, name: profile.nickname });
+              wsSend({ t: 'hoola_host', code, clientId, name: profile.nickname });
             };
             ws.onmessage = ev => {
               let msg;
               try { msg = JSON.parse(ev.data); } catch (_) { return; }
-              if (msg.t === 'hula_hosted') {
+              if (msg.t === 'hoola_hosted') {
                 updateConnectionPill('connected');
                 requestScreenWakeLock();
                 net.room = {
@@ -2040,11 +2040,11 @@
                 openWaitingRoomScreen();
                 persistRoomSnapshotToDB();
                 sfx.meld();
-              } else if (msg.t === 'hula_code_taken') {
+              } else if (msg.t === 'hoola_code_taken') {
                 createOnlineRoom();
-              } else if (msg.t === 'hula_from_guest' && msg.from && msg.payload) {
+              } else if (msg.t === 'hoola_from_guest' && msg.from && msg.payload) {
                 handleHostIncomingMessage(msg.from, msg.payload);
-              } else if (msg.t === 'hula_guest_left' && msg.clientId) {
+              } else if (msg.t === 'hoola_guest_left' && msg.clientId) {
                 handleHostIncomingMessage(msg.clientId, { type: 'LEAVE' });
               }
             };
@@ -2270,7 +2270,7 @@
             return;
           }
           net.customWsUrl = wsUrl;
-          try { localStorage.setItem('hula5_ws_url', wsUrl); } catch (_) {}
+          try { localStorage.setItem('hoola5_ws_url', wsUrl); } catch (_) {}
           setOnlineStatus(`내 서버 접속 중... (방 #${code})`);
           try {
             const ws = new WebSocket(wsUrl);
@@ -2291,19 +2291,19 @@
             ws.onopen = () => {
               startWsHeartbeat();
               setOnlineStatus(`방 #${code} 입장 요청 중...`);
-              wsSend({ t: 'hula_join', code, clientId, name: profile.nickname, avatar: profile.avatar });
+              wsSend({ t: 'hoola_join', code, clientId, name: profile.nickname, avatar: profile.avatar });
             };
             ws.onmessage = ev => {
               let msg;
               try { msg = JSON.parse(ev.data); } catch (_) { return; }
-              if (msg.t === 'hula_promote_host') {
+              if (msg.t === 'hoola_promote_host') {
                 synced = true;
                 clearTimeout(timeoutId);
                 updateConnectionPill('connected');
                 promoteToHostFromDB(msg);
                 return;
               }
-              if (msg.t === 'hula_msg' && msg.payload) {
+              if (msg.t === 'hoola_msg' && msg.payload) {
                 if (msg.payload.type === 'ROOM_SYNC') {
                   synced = true;
                   clearTimeout(timeoutId);
@@ -2640,7 +2640,7 @@
             const myDelta = r.deltas[state.viewingPlayerIdx] || 0;
             settleUserPoints(myDelta, `${net.roomCode}_${state.round}_${r.title}`);
           }
-          showResultModal(r.winnerIdx, r.deltas, r.title, r.subtitle, r.isHula, Boolean(r.aborted), r.ranks || null);
+          showResultModal(r.winnerIdx, r.deltas, r.title, r.subtitle, r.isHoola, Boolean(r.aborted), r.ranks || null);
         } else {
           document.getElementById('result-modal').classList.add('hidden');
         }
@@ -3315,7 +3315,7 @@
        * Computes rank-tiered settlement (1등 우승, 2등 -500P, 3등 -1000P, 4등 -1500P, 5등 -2000P).
        * Returns { deltas: number[], ranks: number[] } (1-based rank per player index).
        */
-      function computeRankSettlement(winnerIdx, { isHula = false, applyBagaji = true, dokbakCallerIdx = null } = {}) {
+      function computeRankSettlement(winnerIdx, { isHoola = false, applyBagaji = true, dokbakCallerIdx = null } = {}) {
         const n = state.players.length;
         const deltas = new Array(n).fill(0);
         const ranks = new Array(n).fill(1);
@@ -3337,7 +3337,7 @@
           });
 
         ranks[winnerIdx] = 1;
-        const hulaMult = isHula ? 2 : 1;
+        const hoolaMult = isHoola ? 2 : 1;
         let wonTotal = 0;
 
         others.forEach((o, pos) => {
@@ -3345,7 +3345,7 @@
           ranks[o.idx] = rank;
           const baseLoss = (rank - 1) * (Number(net.room.baseStep) || RANK_BASE_STEP);
           const bagajiMult = (applyBagaji && !o.melded) ? 2 : 1;
-          const loss = baseLoss * hulaMult * bagajiMult;
+          const loss = baseLoss * hoolaMult * bagajiMult;
 
           if (dokbakCallerIdx !== null) {
             wonTotal += baseLoss; // Dokbak: caller absorbs all rank losses
@@ -3393,11 +3393,11 @@
         const isSuccess = callerPts < lowestOther;
 
         if (isSuccess) {
-          const { deltas, ranks } = computeRankSettlement(playerIdx, { isHula: false, applyBagaji: true });
+          const { deltas, ranks } = computeRankSettlement(playerIdx, { isHoola: false, applyBagaji: true });
           applyRoundScores(deltas, playerIdx, '스톱 승리!', `${caller.name}님이 ${callerPts}점으로 최저점 스톱에 성공했습니다!`, false, ranks);
         } else {
           const winnerIdx = lowestOtherIdx;
-          const { deltas, ranks } = computeRankSettlement(winnerIdx, { isHula: false, applyBagaji: false, dokbakCallerIdx: playerIdx });
+          const { deltas, ranks } = computeRankSettlement(winnerIdx, { isHoola: false, applyBagaji: false, dokbakCallerIdx: playerIdx });
           applyRoundScores(
             deltas,
             winnerIdx,
@@ -3413,19 +3413,19 @@
         clearTimers();
         state.phase = 'round_over';
         const winner = state.players[winnerIdx];
-        const isHula = !winner.hasMeldedBeforeThisTurn;
-        const { deltas, ranks } = computeRankSettlement(winnerIdx, { isHula, applyBagaji: true });
+        const isHoola = !winner.hasMeldedBeforeThisTurn;
+        const { deltas, ranks } = computeRankSettlement(winnerIdx, { isHoola, applyBagaji: true });
 
         sfx.win();
         if (typeof confetti === 'function') {
-          confetti({ particleCount: isHula ? 130 : 70, spread: isHula ? 90 : 65, origin: { y: 0.6 } });
+          confetti({ particleCount: isHoola ? 130 : 70, spread: isHoola ? 90 : 65, origin: { y: 0.6 } });
         }
 
-        const title = isHula ? `🎉 훌라! (HULA!)` : `${winner.name} 1등 우승!`;
-        const sub = isHula
+        const title = isHoola ? `🎉 훌라!` : `${winner.name} 1등 우승!`;
+        const sub = isHoola
           ? `${winner.name}님이 단 한 턴에 모든 패를 털어내며 2배 훌라 우승을 거뒀습니다!`
           : `${winner.name}님이 손패를 모두 비우며 순위 차등 정산으로 우승했습니다.`;
-        applyRoundScores(deltas, winnerIdx, title, sub, isHula, ranks);
+        applyRoundScores(deltas, winnerIdx, title, sub, isHoola, ranks);
       }
 
       function finishRoundByDeckEmpty() {
@@ -3443,7 +3443,7 @@
           }
         });
 
-        const { deltas, ranks } = computeRankSettlement(winnerIdx, { isHula: false, applyBagaji: false });
+        const { deltas, ranks } = computeRankSettlement(winnerIdx, { isHoola: false, applyBagaji: false });
 
         applyRoundScores(
           deltas,
@@ -3455,7 +3455,7 @@
         );
       }
 
-      function applyRoundScores(deltas, winnerIdx, title, subtitle, isHula = false, ranks = null) {
+      function applyRoundScores(deltas, winnerIdx, title, subtitle, isHoola = false, ranks = null) {
         state.players.forEach((p, idx) => {
           p.totalScore += deltas[idx];
         });
@@ -3468,11 +3468,11 @@
           title,
           deltas: [...deltas]
         });
-        state.lastResultModal = { winnerIdx, deltas, title, subtitle, isHula, ranks };
+        state.lastResultModal = { winnerIdx, deltas, title, subtitle, isHoola, ranks };
 
         renderGame();
         broadcastGameState(title, 'success', 'win');
-        showResultModal(winnerIdx, deltas, title, subtitle, isHula, false, ranks);
+        showResultModal(winnerIdx, deltas, title, subtitle, isHoola, false, ranks);
       }
 
       /* ==================== AI ENGINE ==================== */
@@ -3834,7 +3834,7 @@
         // 5. Player Dock
         document.getElementById('active-player-name').textContent = `ID: ${viewer.name}`;
         document.getElementById('hand-points-badge').textContent = `손패 ${handPoints(viewer.hand)}점 (${viewer.hand.length}장)`;
-        document.getElementById('hula-eligible-badge').classList.toggle('hidden', viewer.hasMeldedBeforeThisTurn);
+        document.getElementById('hoola-eligible-badge').classList.toggle('hidden', viewer.hasMeldedBeforeThisTurn);
 
         const phasePill = document.getElementById('turn-phase-pill');
         if (state.phase === 'round_over') {
@@ -3919,8 +3919,8 @@
       }
 
       /* ==================== MODALS ==================== */
-      function showResultModal(winnerIdx, deltas, title, subtitle, isHula, aborted = false, ranks = null) {
-        document.getElementById('result-badge').textContent = aborted ? '⚠️ 상대방 이탈' : (isHula ? '🔥 HULA 2배 보너스' : `${state.round} 라운드 종료 (순위 차등)`);
+      function showResultModal(winnerIdx, deltas, title, subtitle, isHoola, aborted = false, ranks = null) {
+        document.getElementById('result-badge').textContent = aborted ? '⚠️ 상대방 이탈' : (isHoola ? '🔥 훌라 2배 보너스' : `${state.round} 라운드 종료 (순위 차등)`);
         document.getElementById('result-title').textContent = title;
         document.getElementById('result-subtitle').textContent = subtitle;
 
