@@ -2727,6 +2727,8 @@
         net.room.thankYouMode = vs.rules.thankYouMode || 'all';
         if (typeof vs.turnCount === 'number') state.turnCount = vs.turnCount;
 
+        const wasMyDrawPhase = (state.phase === 'draw' && state.currentPlayerIdx === vs.myPlayerIdx);
+
         state.screen = 'game';
         state.round = vs.round;
         state.viewingPlayerIdx = vs.myPlayerIdx;
@@ -2742,9 +2744,15 @@
         state.roundHistory = vs.roundHistory || [];
         state.lastResultModal = vs.lastResultModal;
 
-        const myHandIds = new Set((state.players[state.viewingPlayerIdx]?.hand || []).map(c => c.id));
+        const myHand = state.players[state.viewingPlayerIdx]?.hand || [];
+        const myHandIds = new Set(myHand.map(c => c.id));
         for (const id of [...state.selectedCardIds]) {
           if (!myHandIds.has(id)) state.selectedCardIds.delete(id);
+        }
+        if (wasMyDrawPhase && vs.phase === 'action' && vs.currentPlayerIdx === vs.myPlayerIdx && !vs.mustUseCardId) {
+          state.selectedCardIds.clear();
+          const bestCard = findHighestDiscardCandidate(myHand);
+          if (bestCard) state.selectedCardIds.add(bestCard.id);
         }
         state.hintCardIds.clear();
 
@@ -3218,6 +3226,14 @@
       }
 
       /* ==================== PLAYER ACTIONS (HOST / OFFLINE) ==================== */
+      function findHighestDiscardCandidate(hand) {
+        if (!hand || hand.length === 0) return null;
+        // 조커(rank 0)를 실수로 버리지 않도록 일반 카드 중 가장 높은 숫자(K->Q->J->10...) 우선 선택
+        const normals = hand.filter(c => c.rank > 0);
+        const pool = normals.length > 0 ? normals : hand;
+        return pool.reduce((best, c) => (cardPoints(c) > cardPoints(best) ? c : best), pool[0]);
+      }
+
       function drawFromDeck(playerIdx) {
         if (state.phase !== 'draw' || state.currentPlayerIdx !== playerIdx) return;
         if (state.deck.length === 0) {
@@ -3234,7 +3250,8 @@
 
         if (playerIdx === state.viewingPlayerIdx && !p.isAI) {
           state.selectedCardIds.clear();
-          state.selectedCardIds.add(drawn.id);
+          const bestCard = findHighestDiscardCandidate(p.hand);
+          if (bestCard) state.selectedCardIds.add(bestCard.id);
         }
         renderGame();
         broadcastGameState('', 'info', 'draw');
