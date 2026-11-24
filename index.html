@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="훌라 5" />
-  <link id="pwa-apple-icon" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%230b2f1d'/%3E%3Crect x='14' y='14' width='164' height='164' rx='30' fill='none' stroke='%23f59e0b' stroke-width='8'/%3E%3Ctext x='96' y='124' text-anchor='middle' font-size='104' font-weight='900' fill='%23fbbf24' font-family='sans-serif'%3E7%3C/text%3E%3C/svg%3E" />
+  <link id="pwa-apple-icon" rel="apple-touch-icon" href="icon-512.png" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -239,9 +239,9 @@
 <body class="felt-table min-h-screen flex flex-col">
 
   <!-- Top Navigation Bar -->
-  <header class="w-full bg-black/45 border-b border-amber-500/20 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 z-30">
-    <div class="flex items-center gap-2.5 min-w-0">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md shrink-0 text-slate-950 font-black text-base">
+  <header class="w-full bg-black/45 border-b border-amber-500/20 px-3 sm:px-5 py-2 flex items-center justify-between gap-2 z-30">
+    <div class="flex items-center gap-2 min-w-0">
+      <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md shrink-0 text-slate-950 font-black text-sm">
         7
       </div>
       <div class="truncate">
@@ -288,78 +288,81 @@
   </header>
 
   <!-- Toast Notification -->
-  <div id="toast-container" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-1.5 w-[92%] max-w-md"></div>
+  <div id="toast-container" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-1 w-[92%] max-w-md"></div>
 
   <!-- Main Content Area -->
   <main class="flex-1 flex flex-col relative table-rim overflow-hidden">
 
-    <!-- ==================== LOGIN SCREEN ==================== -->
-    <section id="login-screen" class="flex-1 flex items-center justify-center p-4 sm:p-6">
-      <div class="w-full max-w-md bg-slate-950/88 backdrop-blur-xl border border-amber-500/35 rounded-2xl shadow-2xl p-5 sm:p-7 animate-fade-up">
-        <div class="text-center pb-4 border-b border-white/10">
-          <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg text-slate-950 font-black text-2xl mb-3">
-            7
+    <!-- ==================== LOGIN SCREEN (Compact, No Scroll) ==================== -->
+    <section id="login-screen" class="flex-1 flex items-center justify-center p-2.5 sm:p-4">
+      <div class="w-full max-w-md bg-slate-950/88 backdrop-blur-xl border border-amber-500/35 rounded-2xl shadow-2xl p-3.5 sm:p-5 animate-fade-up">
+        <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-white/10">
+          <div class="flex items-center gap-2.5">
+            <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg border border-amber-200/40 overflow-hidden shrink-0">
+              <img src="icon-512.png" alt="훌라 5 아이콘"
+                class="w-full h-full object-cover"
+                onload="this.nextElementSibling.style.display='none'"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
+              <span class="w-full h-full flex items-center justify-center text-slate-950 font-black text-xl">7</span>
+            </div>
+            <div>
+              <h2 class="text-lg sm:text-xl font-black text-white leading-tight">훌라 5 로그인</h2>
+              <p class="text-[11px] text-emerald-200/85">신규 발급 시 50,000P 지급</p>
+            </div>
           </div>
-          <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/35 text-emerald-200 text-[11px] font-bold mb-1.5">
-            신규 ID 발급 시 50,000P 즉시 지급
+          <span class="px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/35 text-[10px] font-bold text-amber-200 shrink-0">
+            50,000P
           </span>
-          <h2 class="text-2xl font-black text-white tracking-tight">훌라 5 로그인</h2>
-          <p class="text-xs text-slate-300 mt-1">원하는 ID와 비밀번호를 입력해 바로 로그인하거나, ID 발급받기로 간편 생성하세요.</p>
         </div>
 
-        <form id="login-form" class="mt-5 space-y-3.5">
+        <form id="login-form" class="mt-3 space-y-2.5">
           <div>
-            <label for="login-id" class="block text-xs font-bold text-amber-300 mb-1.5">ID</label>
-            <input id="login-id" type="text" maxlength="12" autocomplete="username" placeholder="ID 입력 (예: A1234 또는 원하는 ID)"
-              class="w-full bg-slate-900/95 border border-white/15 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white outline-none transition" />
+            <label for="login-id" class="block text-[11px] font-bold text-amber-300 mb-1">ID</label>
+            <input id="login-id" type="text" maxlength="12" autocomplete="username" placeholder="ID 입력"
+              class="w-full bg-slate-900/95 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm font-bold text-white outline-none transition" />
           </div>
 
           <div>
-            <label for="login-pw" class="block text-xs font-bold text-amber-300 mb-1.5">비밀번호</label>
+            <label for="login-pw" class="block text-[11px] font-bold text-amber-300 mb-1">비밀번호</label>
             <div class="relative">
-              <input id="login-pw" type="password" maxlength="10" autocomplete="current-password" placeholder="영문+숫자 4자리 비밀번호"
-                class="w-full bg-slate-900/95 border border-white/15 focus:border-amber-400 rounded-xl pl-3.5 pr-12 py-2.5 text-sm font-mono font-bold tracking-widest text-white outline-none transition" />
-              <button id="btn-toggle-pw-vis" type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition" title="비밀번호 보기/숨기기">
+              <input id="login-pw" type="password" maxlength="10" autocomplete="current-password" placeholder="4자리 비밀번호"
+                class="w-full bg-slate-900/95 border border-white/15 focus:border-amber-400 rounded-xl pl-3 pr-10 py-2 text-sm font-mono font-bold tracking-widest text-white outline-none transition" />
+              <button id="btn-toggle-pw-vis" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded text-xs font-bold text-slate-300 hover:text-white transition" title="비밀번호 보기/숨기기">
                 👁
               </button>
             </div>
           </div>
 
-          <div class="pt-1 flex flex-col gap-2.5">
-            <button id="btn-login" type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition active:scale-[0.99]">
+          <div class="pt-0.5 flex gap-2">
+            <button id="btn-login" type="submit" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm shadow transition active:scale-[0.99]">
               로그인
             </button>
-            <button id="btn-issue-id" type="button" class="w-full py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/45 text-emerald-200 font-black text-sm transition active:scale-[0.99]">
-              ✨ ID 발급받기 (50,000P 지급)
+            <button id="btn-issue-id" type="button" class="flex-1 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/45 text-emerald-200 font-black text-sm transition active:scale-[0.99]">
+              ✨ ID 발급받기
             </button>
           </div>
         </form>
 
-        <div id="login-status" class="hidden mt-3.5 text-center text-xs font-bold rounded-xl py-2.5 px-3"></div>
+        <div id="login-status" class="hidden mt-2 text-center text-[11px] font-bold rounded-lg py-1.5 px-2.5"></div>
 
-        <!-- Newly Issued Account Box -->
-        <div id="issued-account-box" class="hidden mt-4 bg-emerald-950/70 border border-emerald-400/50 rounded-2xl p-4 space-y-3 animate-fade-up">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-emerald-300">🎉 새 ID 발급 완료!</span>
-            <span class="px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-200 text-[11px] font-black">50,000P 지급</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2 bg-black/40 rounded-xl p-3 border border-white/10">
-            <div>
-              <div class="text-[10px] font-bold text-slate-400">발급된 ID</div>
-              <div id="issued-id-val" class="text-base font-black text-white tracking-wide mt-0.5">-</div>
+        <!-- Compact Newly Issued Account Box (No vertical bloat) -->
+        <div id="issued-account-box" class="hidden mt-2.5 bg-emerald-950/75 border border-emerald-400/50 rounded-xl p-2.5 space-y-2 animate-fade-up">
+          <div class="flex items-center justify-between gap-2 bg-black/40 rounded-lg px-2.5 py-1.5 border border-white/10">
+            <div class="text-xs">
+              <span class="text-slate-400 mr-1">ID</span>
+              <strong id="issued-id-val" class="text-white font-black">-</strong>
             </div>
-            <div>
-              <div class="text-[10px] font-bold text-slate-400">비밀번호 (4자리)</div>
-              <div id="issued-pw-val" class="text-base font-mono font-black text-amber-300 tracking-widest mt-0.5">-</div>
+            <div class="text-xs">
+              <span class="text-slate-400 mr-1">PW</span>
+              <strong id="issued-pw-val" class="font-mono text-amber-300 font-black tracking-wider">-</strong>
             </div>
           </div>
-          <p class="text-[11px] text-emerald-200/80 leading-relaxed">다음 접속 시 위 ID와 비밀번호를 입력하면 보유 포인트가 그대로 유지됩니다.</p>
-          <div class="flex gap-2">
-            <button id="btn-copy-issued" type="button" class="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs font-bold text-slate-100 transition">
-              📋 ID/비번 복사
+          <div class="flex gap-1.5">
+            <button id="btn-copy-issued" type="button" class="flex-1 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-[11px] font-bold text-slate-100 transition">
+              📋 복사
             </button>
-            <button id="btn-use-issued" type="button" class="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition">
-              바로 입장하기 →
+            <button id="btn-use-issued" type="button" class="flex-1 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-black transition">
+              바로 입장 →
             </button>
           </div>
         </div>
@@ -367,48 +370,40 @@
     </section>
 
     <!-- ==================== LOBBY SCREEN ==================== -->
-    <section id="lobby-screen" class="hidden flex-1 flex items-center justify-center p-4 sm:p-6">
-      <div class="w-full max-w-2xl bg-slate-950/85 backdrop-blur-xl border border-amber-500/30 rounded-2xl shadow-2xl p-5 sm:p-7 animate-fade-up">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+    <section id="lobby-screen" class="hidden flex-1 flex items-center justify-center p-3 sm:p-5">
+      <div class="w-full max-w-2xl bg-slate-950/85 backdrop-blur-xl border border-amber-500/30 rounded-2xl shadow-2xl p-4 sm:p-6 animate-fade-up">
+        <div class="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
           <div>
-            <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[11px] font-bold mb-1.5">
-              최대 5인 실시간 접속 · 각자 스마트폰에서 플레이
-            </span>
-            <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">훌라 5 라운지</h2>
-            <p class="text-xs sm:text-sm text-emerald-200/80 mt-0.5">방을 만들고 4자리 코드만 공유하면 5명이 각자 폰에서 바로 모일 수 있어요.</p>
+            <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">훌라 5 라운지</h2>
+            <p class="text-xs text-emerald-200/80 mt-0.5">4자리 방 코드로 접속</p>
           </div>
-          <div class="flex gap-1.5 shrink-0 self-start sm:self-center">
-            <div class="w-9 h-12 rounded bg-white text-slate-900 font-black text-xs flex flex-col items-center justify-center shadow border border-slate-300 -rotate-6">
+          <div class="flex gap-1 shrink-0">
+            <div class="w-8 h-11 rounded bg-white text-slate-900 font-black text-xs flex flex-col items-center justify-center shadow border border-slate-300 -rotate-6">
               <span>Q</span><span class="text-red-600">♦</span>
             </div>
-            <div class="w-9 h-12 rounded bg-white text-slate-900 font-black text-xs flex flex-col items-center justify-center shadow border border-slate-300 -rotate-2">
+            <div class="w-8 h-11 rounded bg-white text-slate-900 font-black text-xs flex flex-col items-center justify-center shadow border border-slate-300 -rotate-2">
               <span>K</span><span class="text-red-600">♦</span>
             </div>
-            <div class="w-9 h-12 rounded bg-white text-slate-900 font-black text-xs flex flex-col items-center justify-center shadow border border-slate-300 rotate-2">
+            <div class="w-8 h-11 rounded bg-white text-slate-900 font-black text-xs flex flex-col items-center justify-center shadow border border-slate-300 rotate-2">
               <span>A</span><span class="text-red-600">♦</span>
             </div>
-            <div class="w-9 h-12 rounded bg-white text-slate-900 font-black text-xs flex flex-col items-center justify-center shadow border border-slate-300 rotate-6">
+            <div class="w-8 h-11 rounded bg-white text-slate-900 font-black text-xs flex flex-col items-center justify-center shadow border border-slate-300 rotate-6">
               <span>2</span><span class="text-red-600">♦</span>
             </div>
           </div>
         </div>
 
-        <!-- TAB 1: ONLINE MULTIPLAYER PANEL -->
-        <div id="panel-online-mode" class="mt-5 space-y-4">
+        <!-- ONLINE MULTIPLAYER PANEL -->
+        <div id="panel-online-mode" class="mt-3.5 space-y-3">
           <!-- Logged-in Account Strip -->
-          <div class="flex flex-wrap items-center justify-between gap-2 bg-white/5 border border-amber-400/25 rounded-xl px-4 py-2.5">
-            <div class="flex items-center gap-3 flex-wrap">
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold text-slate-400">접속 ID</span>
-                <span id="lobby-user-id" class="text-sm font-black text-white">-</span>
-              </div>
+          <div class="flex items-center justify-between gap-2 bg-white/5 border border-amber-400/25 rounded-xl px-3.5 py-2">
+            <div class="flex items-center gap-2.5 flex-wrap text-xs">
+              <span class="text-slate-400 font-bold">ID</span>
+              <span id="lobby-user-id" class="font-black text-white">-</span>
               <span class="text-white/20">|</span>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold text-slate-400">보유 포인트</span>
-                <span id="lobby-user-points" class="text-sm font-black text-amber-300">50,000P</span>
-              </div>
+              <span id="lobby-user-points" class="font-black text-amber-300">50,000P</span>
             </div>
-            <button id="btn-lobby-logout" type="button" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-rose-500/25 border border-white/10 hover:border-rose-400/40 text-xs font-bold text-slate-200 transition">
+            <button id="btn-lobby-logout" type="button" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-rose-500/25 border border-white/10 text-xs font-bold text-slate-200 transition">
               로그아웃
             </button>
           </div>
@@ -416,106 +411,93 @@
           <!-- Create vs Join Room -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <!-- Create Room -->
-            <div class="bg-gradient-to-b from-amber-500/15 to-amber-500/5 border border-amber-400/35 rounded-2xl p-4 flex flex-col justify-between gap-3">
+            <div class="bg-gradient-to-b from-amber-500/15 to-amber-500/5 border border-amber-400/35 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
               <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-lg">👑</span>
-                  <h3 class="text-base font-black text-amber-200">새 대기실 만들기</h3>
+                <div class="flex items-center gap-1.5 mb-1">
+                  <span>👑</span>
+                  <h3 class="text-sm sm:text-base font-black text-amber-200">대기실 만들기</h3>
                 </div>
-                <p class="text-xs text-slate-300 leading-relaxed">방장이 되어 4자리 방 코드를 발급받고 친구들을 초대하세요. 빈자리는 AI 봇으로 채울 수도 있습니다.</p>
+                <p class="text-[11px] text-slate-300">방 코드 생성 및 AI 봇 추가 가능</p>
               </div>
-              <button id="btn-create-room" type="button" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition active:scale-[0.99]">
+              <button id="btn-create-room" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm shadow transition active:scale-[0.99]">
                 대기실 만들기
               </button>
             </div>
 
             <!-- Join Room -->
-            <div class="bg-gradient-to-b from-sky-500/15 to-sky-500/5 border border-sky-400/35 rounded-2xl p-4 flex flex-col justify-between gap-3">
+            <div class="bg-gradient-to-b from-sky-500/15 to-sky-500/5 border border-sky-400/35 rounded-2xl p-3.5 flex flex-col justify-between gap-2.5">
               <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-lg">📱</span>
-                  <h3 class="text-base font-black text-sky-200">방 코드로 입장</h3>
+                <div class="flex items-center gap-1.5 mb-1">
+                  <span>📱</span>
+                  <h3 class="text-sm sm:text-base font-black text-sky-200">방 코드로 입장</h3>
                 </div>
-                <p class="text-xs text-slate-300 mb-2.5">방장에게 받은 4자리 숫자를 입력하세요.</p>
                 <input id="input-room-code" type="text" inputmode="numeric" maxlength="4" placeholder="0000"
-                  class="w-full text-center tracking-[0.35em] font-mono text-lg font-black bg-slate-900/95 border border-sky-400/40 focus:border-sky-300 rounded-xl px-3 py-2 text-white outline-none transition" />
+                  class="w-full text-center tracking-[0.35em] font-mono text-base font-black bg-slate-900/95 border border-sky-400/40 focus:border-sky-300 rounded-xl px-3 py-1.5 text-white outline-none transition" />
               </div>
-              <button id="btn-join-room" type="button" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm shadow-lg shadow-sky-500/20 transition active:scale-[0.99]">
-                대기실 입장하기
+              <button id="btn-join-room" type="button" class="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-sm shadow transition active:scale-[0.99]">
+                입장하기
               </button>
             </div>
           </div>
 
-          <div id="online-connect-status" class="hidden text-center text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-400/30 rounded-xl py-2.5 px-3">
+          <div id="online-connect-status" class="hidden text-center text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-400/30 rounded-xl py-2 px-3">
             연결 중...
           </div>
-
         </div>
-
       </div>
     </section>
 
-    <!-- ==================== ONLINE WAITING ROOM SCREEN ==================== -->
-    <section id="waiting-room-screen" class="hidden flex-1 flex items-center justify-center p-3 sm:p-5">
-      <div class="w-full max-w-4xl bg-slate-950/88 backdrop-blur-xl border border-amber-500/35 rounded-2xl shadow-2xl p-4 sm:p-6 animate-fade-up flex flex-col gap-4">
+    <!-- ==================== ONLINE WAITING ROOM SCREEN (Single-View Compact) ==================== -->
+    <section id="waiting-room-screen" class="hidden flex-1 flex items-center justify-center p-2 sm:p-3.5 overflow-y-auto">
+      <div class="w-full max-w-4xl bg-slate-950/88 backdrop-blur-xl border border-amber-500/35 rounded-2xl shadow-2xl p-3 sm:p-4 animate-fade-up flex flex-col gap-2.5">
         <!-- Waiting Room Top Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
-          <div class="flex items-center gap-3 flex-wrap">
-            <div>
-              <div class="flex items-center gap-2">
-                <span id="wr-connection-pill" class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold">
-                  🟢 연결됨
-                </span>
-                <button id="btn-wr-reconnect" type="button" class="px-2 py-0.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 text-[11px] font-bold transition" title="모바일에서 다른 앱 다녀온 뒤 연결 복구">
-                  🔄 연결 유지
-                </button>
-                <span id="wr-role-badge" class="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[11px] font-bold">
-                  👑 방장
-                </span>
-              </div>
-              <h2 class="text-xl sm:text-2xl font-black text-white mt-1">온라인 훌라 대기실</h2>
-            </div>
+        <div class="flex items-center justify-between gap-2 pb-2 border-b border-white/10">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 class="text-base sm:text-lg font-black text-white">대기실</h2>
+            <span id="wr-connection-pill" class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[10px] font-bold">
+              🟢 연결됨
+            </span>
+            <button id="btn-wr-reconnect" type="button" class="px-2 py-0.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 text-[10px] font-bold transition" title="연결 복구">
+              🔄
+            </button>
+            <span id="wr-role-badge" class="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[10px] font-bold">
+              👑 방장
+            </span>
           </div>
 
-          <!-- Room Code Share Box -->
-          <div class="flex items-center gap-2 bg-black/45 border border-sky-400/35 rounded-xl px-3.5 py-2 self-start sm:self-center">
+          <!-- Room Code Box (Invite Link button kept, Code Copy removed) -->
+          <div class="flex items-center gap-2 bg-black/45 border border-sky-400/35 rounded-xl px-3 py-1 shrink-0">
             <div>
-              <div class="text-[10px] font-bold text-sky-300 uppercase">방 코드</div>
-              <div id="wr-room-code" class="text-2xl font-mono font-black tracking-[0.2em] text-white leading-tight">0000</div>
+              <div class="text-[9px] font-bold text-sky-300 leading-none">방 코드</div>
+              <div id="wr-room-code" class="text-lg sm:text-xl font-mono font-black tracking-[0.18em] text-white leading-tight">0000</div>
             </div>
-            <div class="flex flex-col gap-1 ml-2">
-              <button id="btn-copy-code" type="button" class="px-2.5 py-1 rounded-lg bg-sky-500/25 hover:bg-sky-500/35 border border-sky-400/40 text-[11px] font-bold text-sky-100 transition">
-                📋 코드 복사
-              </button>
-              <button id="btn-copy-link" type="button" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-[11px] font-bold text-amber-100 transition">
-                🔗 초대 링크
-              </button>
-            </div>
+            <button id="btn-copy-link" type="button" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-[11px] font-bold text-amber-100 transition whitespace-nowrap">
+              🔗 초대 링크
+            </button>
           </div>
         </div>
 
-        <!-- Waiting Room Body: Seats + Chat & Settings -->
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          <!-- Left 3 cols: 5 Player Seats + Rules -->
-          <div class="lg:col-span-3 flex flex-col gap-3">
+        <!-- Waiting Room Body: Seats & Rules + Chat -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-2.5">
+          <!-- Left 3 cols: Seats + Compact Rules -->
+          <div class="lg:col-span-3 flex flex-col gap-2">
             <div class="flex items-center justify-between">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300">
-                참가자 목록 (<span id="wr-player-fraction">1/5</span>명)
-              </h3>
-              <span class="text-[11px] text-slate-400">각자 폰에서 위 방 코드를 입력해 입장하세요</span>
+              <span class="text-xs font-bold text-amber-300">
+                참가자 (<span id="wr-player-fraction">3/3</span>)
+              </span>
             </div>
 
-            <div id="wr-seats-list" class="space-y-2"></div>
+            <div id="wr-seats-list" class="space-y-1.5"></div>
 
-            <!-- Room Rules (Host Editable, Guest Read-only) -->
-            <div class="bg-white/5 border border-white/10 rounded-xl p-3 mt-1">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-emerald-200">방 규칙 설정</span>
-                <span id="wr-rules-lock-hint" class="text-[10px] text-slate-400">방장만 변경 가능</span>
+            <!-- Room Rules -->
+            <div class="bg-white/5 border border-white/10 rounded-xl p-2.5">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] font-bold text-emerald-200">방 규칙</span>
+                <span id="wr-rules-lock-hint" class="text-[10px] text-slate-400">방장 설정</span>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
                 <div>
-                  <span class="block text-[10px] text-slate-400 mb-1">최대 인원</span>
+                  <span class="block text-[10px] text-slate-400 mb-0.5">인원</span>
                   <div id="wr-max-players-btns" class="grid grid-cols-4 gap-1">
                     <button type="button" data-wr-max="2" class="wr-max-btn py-1 rounded font-bold border">2명</button>
                     <button type="button" data-wr-max="3" class="wr-max-btn py-1 rounded font-bold border">3명</button>
@@ -524,7 +506,7 @@
                   </div>
                 </div>
                 <div>
-                  <span class="block text-[10px] text-slate-400 mb-1">조커 수</span>
+                  <span class="block text-[10px] text-slate-400 mb-0.5">조커</span>
                   <div id="wr-joker-btns" class="grid grid-cols-3 gap-1">
                     <button type="button" data-wr-joker="0" class="wr-joker-btn py-1 rounded font-bold border">없음</button>
                     <button type="button" data-wr-joker="1" class="wr-joker-btn py-1 rounded font-bold border">1장</button>
@@ -532,14 +514,14 @@
                   </div>
                 </div>
                 <div>
-                  <span class="block text-[10px] text-slate-400 mb-1">Q-K-A-2 순환</span>
+                  <span class="block text-[10px] text-slate-400 mb-0.5">Q-K-A-2 순환</span>
                   <div id="wr-wrap-btns" class="grid grid-cols-2 gap-1">
                     <button type="button" data-wr-wrap="true" class="wr-wrap-btn py-1 rounded font-bold border">허용</button>
                     <button type="button" data-wr-wrap="false" class="wr-wrap-btn py-1 rounded font-bold border">끄기</button>
                   </div>
                 </div>
                 <div>
-                  <span class="block text-[10px] text-slate-400 mb-1">기본 포인트 (순위당 차등)</span>
+                  <span class="block text-[10px] text-slate-400 mb-0.5">기본 포인트</span>
                   <div id="wr-step-btns" class="grid grid-cols-4 gap-1">
                     <button type="button" data-wr-step="100" class="wr-step-btn py-1 rounded font-bold border">100</button>
                     <button type="button" data-wr-step="500" class="wr-step-btn py-1 rounded font-bold border">500</button>
@@ -548,35 +530,34 @@
                   </div>
                 </div>
                 <div>
-                  <span class="block text-[10px] text-slate-400 mb-1">스톱 가능 점수 (2바퀴째부터)</span>
+                  <span class="block text-[10px] text-slate-400 mb-0.5">스톱 기준</span>
                   <div id="wr-stop-btns" class="grid grid-cols-2 gap-1">
-                    <button type="button" data-wr-stop="10" class="wr-stop-btn py-1 rounded font-bold border">10점 이하</button>
-                    <button type="button" data-wr-stop="15" class="wr-stop-btn py-1 rounded font-bold border">15점 이하</button>
+                    <button type="button" data-wr-stop="10" class="wr-stop-btn py-1 rounded font-bold border">10점이하</button>
+                    <button type="button" data-wr-stop="15" class="wr-stop-btn py-1 rounded font-bold border">15점이하</button>
                   </div>
                 </div>
                 <div>
-                  <span class="block text-[10px] text-slate-400 mb-1">땡큐 방식</span>
+                  <span class="block text-[10px] text-slate-400 mb-0.5">땡큐 방식</span>
                   <div id="wr-ty-btns" class="grid grid-cols-2 gap-1">
-                    <button type="button" data-wr-ty="all" class="wr-ty-btn py-1 rounded font-bold border">아무 턴 (전투)</button>
-                    <button type="button" data-wr-ty="own" class="wr-ty-btn py-1 rounded font-bold border">내 턴만 (정통)</button>
+                    <button type="button" data-wr-ty="own" class="wr-ty-btn py-1 rounded font-bold border whitespace-nowrap">내턴만(정통)</button>
+                    <button type="button" data-wr-ty="all" class="wr-ty-btn py-1 rounded font-bold border whitespace-nowrap">아무턴(전투)</button>
                   </div>
                 </div>
               </div>
-              <p id="wr-step-preview" class="text-[11px] text-amber-200/85 mt-2 font-medium"></p>
+              <p id="wr-step-preview" class="text-[10px] text-amber-200/85 mt-1.5 font-medium truncate"></p>
             </div>
           </div>
 
           <!-- Right 2 cols: Live Waiting Room Chat -->
-          <div class="lg:col-span-2 bg-black/35 border border-white/10 rounded-xl p-3 flex flex-col h-[280px] lg:h-auto lg:min-h-[340px]">
-            <div class="flex items-center justify-between pb-2 border-b border-white/10">
-              <span class="text-xs font-bold text-sky-200">💬 대기실 채팅</span>
-              <span class="text-[10px] text-slate-400">실시간</span>
+          <div class="lg:col-span-2 bg-black/35 border border-white/10 rounded-xl p-2.5 flex flex-col h-[170px] lg:h-auto">
+            <div class="flex items-center justify-between pb-1.5 border-b border-white/10">
+              <span class="text-xs font-bold text-sky-200">💬 채팅</span>
             </div>
-            <div id="wr-chat-messages" class="flex-1 overflow-y-auto py-2 space-y-1.5 text-xs"></div>
-            <form id="wr-chat-form" class="mt-2 flex gap-1.5">
-              <input id="wr-chat-input" type="text" maxlength="80" placeholder="메시지 입력..."
-                class="flex-1 min-w-0 bg-slate-900 border border-white/15 focus:border-sky-400 rounded-lg px-2.5 py-2 text-xs text-white outline-none" />
-              <button type="submit" class="px-3 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs shrink-0 transition">
+            <div id="wr-chat-messages" class="flex-1 overflow-y-auto py-1.5 space-y-1 text-xs"></div>
+            <form id="wr-chat-form" class="mt-1.5 flex gap-1.5">
+              <input id="wr-chat-input" type="text" maxlength="80" placeholder="메시지..."
+                class="flex-1 min-w-0 bg-slate-900 border border-white/15 focus:border-sky-400 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none" />
+              <button type="submit" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs shrink-0 transition">
                 전송
               </button>
             </form>
@@ -584,19 +565,19 @@
         </div>
 
         <!-- Waiting Room Footer Actions -->
-        <div class="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-          <button id="btn-leave-room" type="button" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-rose-500/25 border border-white/10 hover:border-rose-400/40 text-slate-200 font-bold text-xs sm:text-sm transition">
-            방 나가기
+        <div class="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
+          <button id="btn-leave-room" type="button" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-rose-500/25 border border-white/10 hover:border-rose-400/40 text-slate-200 font-bold text-xs sm:text-sm transition shrink-0">
+            나가기
           </button>
 
           <div class="flex items-center gap-2">
             <!-- Guest Ready Button -->
-            <button id="btn-toggle-ready" type="button" class="hidden flex-1 sm:flex-none px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg transition">
+            <button id="btn-toggle-ready" type="button" class="hidden px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow transition whitespace-nowrap">
               준비 완료
             </button>
             <!-- Host Start Button -->
-            <button id="btn-host-start-online" type="button" class="hidden flex-1 sm:flex-none px-7 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 transition">
-              게임 시작하기
+            <button id="btn-host-start-online" type="button" class="hidden px-6 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black text-sm shadow transition whitespace-nowrap">
+              게임 시작
             </button>
           </div>
         </div>
@@ -673,7 +654,7 @@
           <button id="btn-accept-thankyou" type="button" class="px-3.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition shadow">
             땡큐로 가져와 등록
           </button>
-          <button id="btn-skip-thankyou" type="button" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 font-semibold text-xs transition">
+          <button id="btn-skip-thankyou" type="button" class="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 font-semibold text-xs transition">
             패스
           </button>
         </div>
@@ -928,9 +909,9 @@
       let memoryAccountsDB = {};
 
       const auth = {
-        user: null, // { id, points }
-        sessionToken: '', // server-issued cryptographic session token
-        lastIssued: null, // { id, password, points, token }
+        user: null,
+        sessionToken: '',
+        lastIssued: null,
         lastSettledRoundKey: ''
       };
 
@@ -963,7 +944,6 @@
       function generatePassword4() {
         const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
         const digits = '23456789';
-        // 영문 2자리 + 숫자 2자리 섞어서 총 4자리
         const chars = [
           letters[Math.floor(Math.random() * letters.length)],
           letters[Math.floor(Math.random() * letters.length)],
@@ -1050,7 +1030,6 @@
 
           const password = generatePassword4();
 
-          // Try server DB first if server supports auth messages
           const remote = await wsAuthRequest({
             t: 'hoola_auth_register',
             id,
@@ -1081,9 +1060,8 @@
             };
           }
 
-          // Local DB fallback
           if (db[id]) {
-            return { ok: false, error: '이미 사용 중인 ID입니다. 다른 ID를 입력하거나 비워두고 발급받으세요.' };
+            return { ok: false, error: '이미 사용 중인 ID입니다.' };
           }
           db[id] = {
             id,
@@ -1103,13 +1081,12 @@
           const id = String(rawId || '').trim();
           const pw = String(rawPw || '').trim();
           if (!id || !pw) {
-            return { ok: false, error: 'ID와 비밀번호를 모두 입력해주세요.' };
+            return { ok: false, error: 'ID와 비밀번호를 입력해주세요.' };
           }
           if (id.length < 2 || id.length > 12 || /\s/.test(id)) {
             return { ok: false, error: 'ID는 공백 없이 2~12자 이내로 입력해주세요.' };
           }
 
-          // 1) Try server login first
           const remote = await wsAuthRequest({
             t: 'hoola_auth_login',
             id,
@@ -1136,7 +1113,6 @@
             };
           }
 
-          // 2) If server says not found (unregistered), auto-register with the entered ID & PW!
           if (remote && remote.t === 'hoola_auth_err') {
             const reason = String(remote.reason || '');
             const looksLikeWrongPw = reason.includes('비밀번호') && !reason.includes('등록되지') && !reason.includes('없');
@@ -1170,7 +1146,6 @@
             return { ok: false, error: (regRes && regRes.reason) || reason || 'ID 또는 비밀번호가 올바르지 않습니다.' };
           }
 
-          // 3) Local DB fallback: if ID doesn't exist yet, create immediately and log in!
           const acc = db[id];
           if (!acc) {
             db[id] = {
@@ -1204,7 +1179,6 @@
             db[id].updatedAt = Date.now();
             saveLocalDB(db);
           }
-          // Authenticated point update to server DB (verified by session token + roundKey)
           wsAuthRequest({
             t: 'hoola_auth_update_points',
             id,
@@ -1226,11 +1200,11 @@
         el.classList.remove('hidden');
         el.textContent = msg;
         if (type === 'error') {
-          el.className = 'mt-3.5 text-center text-xs font-bold text-rose-200 bg-rose-950/80 border border-rose-400/50 rounded-xl py-2.5 px-3';
+          el.className = 'mt-2 text-center text-[11px] font-bold text-rose-200 bg-rose-950/80 border border-rose-400/50 rounded-lg py-1.5 px-2.5';
         } else if (type === 'success') {
-          el.className = 'mt-3.5 text-center text-xs font-bold text-emerald-200 bg-emerald-950/80 border border-emerald-400/50 rounded-xl py-2.5 px-3';
+          el.className = 'mt-2 text-center text-[11px] font-bold text-emerald-200 bg-emerald-950/80 border border-emerald-400/50 rounded-lg py-1.5 px-2.5';
         } else {
-          el.className = 'mt-3.5 text-center text-xs font-bold text-amber-200 bg-amber-500/15 border border-amber-400/35 rounded-xl py-2.5 px-3';
+          el.className = 'mt-2 text-center text-[11px] font-bold text-amber-200 bg-amber-500/15 border border-amber-400/35 rounded-lg py-1.5 px-2.5';
         }
       }
 
@@ -1302,9 +1276,9 @@
       }
 
       const config = {
-        lobbyTab: 'online', // 'online' | 'offline'
-        playerCount: 5,
-        jokerCount: 2,
+        lobbyTab: 'online',
+        playerCount: 3,
+        jokerCount: 0,
         allowWrap: true,
         seats: [
           { name: DEFAULT_NAMES[0], isAI: false },
@@ -1315,7 +1289,7 @@
         ]
       };
 
-      /* ==================== ONLINE MULTIPLAYER (PeerJS) STATE ==================== */
+      /* ==================== ONLINE MULTIPLAYER STATE ==================== */
       const DEFAULT_CUSTOM_WS_URL = 'wss://kiablo.duckdns.org';
 
       function detectDefaultTransport() {
@@ -1327,52 +1301,52 @@
       }
 
       const net = {
-        mode: 'offline', // 'offline' | 'online'
-        transport: detectDefaultTransport(), // 'custom_ws' | 'public_mqtt'
+        mode: 'offline',
+        transport: detectDefaultTransport(),
         customWsUrl: detectDefaultWsUrl(),
-        role: null,      // 'host' | 'guest' | null
+        role: null,
         roomCode: '',
-        ws: null,        // Native WebSocket to user's server.js
+        ws: null,
         wsPingTimer: null,
         wsReconnectTimer: null,
-        client: null,    // MQTT.js client over WSS
-        guestIds: new Set(), // host: connected guest clientIds
-        myPeerId: '',    // unique clientId for this browser
+        client: null,
+        guestIds: new Set(),
+        myPeerId: '',
         wakeLock: null,
         joinRetryTimer: null,
-        chatMessages: [], // { sender, avatar, text, system, time }
+        chatMessages: [],
         unreadChat: false,
         room: {
-          maxPlayers: 2,
+          maxPlayers: 3,
           jokerCount: 0,
           allowWrap: true,
-          baseStep: 500,
+          baseStep: 1000,
           stopLimit: 10,
-          thankYouMode: 'all',
-          status: 'waiting', // 'waiting' | 'playing'
-          seats: [] // { peerId, name, avatar, isAI, isHost, ready }
+          thankYouMode: 'own',
+          status: 'waiting',
+          seats: []
         }
       };
 
       /* ==================== CORE GAME STATE ==================== */
       const state = {
-        screen: 'login', // 'login' | 'lobby' | 'waiting' | 'game'
+        screen: 'login',
         round: 1,
         players: [],
         deck: [],
-        deckCountOverride: null, // used by guest view
+        deckCountOverride: null,
         discardPile: [],
         discardCountOverride: null,
         tableMelds: [],
         currentPlayerIdx: 0,
         viewingPlayerIdx: 0,
-        phase: 'draw', // 'draw' | 'action' | 'thankyou_offer' | 'round_over'
+        phase: 'draw',
         selectedCardIds: new Set(),
         hintCardIds: new Set(),
         attachMode: false,
         mustUseCardId: null,
         pendingThankYou: null,
-        thankYouQueue: [], // for online multi-human Thank You check
+        thankYouQueue: [],
         aiTimer: null,
         turnCount: 0,
         roundHistory: [],
@@ -1442,8 +1416,8 @@
         el.classList.remove('hidden');
         el.textContent = msg;
         el.className = isError
-          ? 'text-center text-xs font-bold text-rose-200 bg-rose-950/80 border border-rose-400/50 rounded-xl py-2.5 px-3'
-          : 'text-center text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-400/30 rounded-xl py-2.5 px-3';
+          ? 'text-center text-xs font-bold text-rose-200 bg-rose-950/80 border border-rose-400/50 rounded-xl py-2 px-3'
+          : 'text-center text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-400/30 rounded-xl py-2 px-3';
       }
 
       function getActiveRuleAllowWrap() {
@@ -1704,7 +1678,7 @@
       }
 
       function getActiveThankYouMode() {
-        return net.room.thankYouMode === 'own' ? 'own' : 'all';
+        return net.room.thankYouMode === 'all' ? 'all' : 'own';
       }
 
       function checkThankYouOption(playerHand, discardedCard, canAttach = false) {
@@ -1722,7 +1696,7 @@
         return null;
       }
 
-      /* ==================== ONLINE NETWORK LAYER (MQTT over WSS Relay) ==================== */
+      /* ==================== ONLINE NETWORK LAYER ==================== */
       function roomTopic(code, sub) {
         return `${TOPIC_PREFIX}${code}/${sub}`;
       }
@@ -1735,14 +1709,14 @@
         const pill = document.getElementById('wr-connection-pill');
         if (!pill) return;
         if (status === 'connected') {
-          pill.textContent = '🟢 서버 연결됨';
-          pill.className = 'px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[11px] font-bold';
+          pill.textContent = '🟢 연결됨';
+          pill.className = 'px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[10px] font-bold';
         } else if (status === 'reconnecting') {
-          pill.textContent = '🟡 재연결 중...';
-          pill.className = 'px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[11px] font-bold';
+          pill.textContent = '🟡 재연결 중';
+          pill.className = 'px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[10px] font-bold';
         } else {
-          pill.textContent = '🔴 연결 끊김';
-          pill.className = 'px-2 py-0.5 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-200 text-[11px] font-bold';
+          pill.textContent = '🔴 끊김';
+          pill.className = 'px-2 py-0.5 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-200 text-[10px] font-bold';
         }
       }
 
@@ -1781,7 +1755,6 @@
         } catch (_) {}
       }
 
-      // Unified transport senders (route to server.js WS or EMQX MQTT)
       function netSendBroadcast(payloadObj) {
         if (net.transport === 'custom_ws') {
           wsSend({ t: 'hoola_broadcast', payload: payloadObj });
@@ -1855,7 +1828,7 @@
         if (!p.name.endsWith('(AI)')) p.name = `${p.name} (AI)`;
         p.lastAction = 'AI 대리 진행';
 
-        const msgText = `${departedName || p.name}님이 퇴장하여 AI가 대리 진행합니다. 게임은 계속 유지됩니다!`;
+        const msgText = `${departedName || p.name}님 퇴장 → AI 대리 진행`;
         addChatMessage({ system: true, text: msgText });
         broadcastChatMessage({ system: true, text: msgText });
 
@@ -1916,7 +1889,6 @@
           net.chatMessages = snapshot.chatMessages;
         }
 
-        // Remove departed host from waiting seats and assign host badge to me
         net.room.seats = (net.room.seats || []).filter(s => s.peerId !== departedId);
         net.guestIds.clear();
         net.room.seats.forEach(s => {
@@ -1929,7 +1901,7 @@
           }
         });
 
-        const notice = `👑 기존 방장(${departedName})이 퇴장하여 ${auth.user ? auth.user.id : profile.nickname}님이 새 방장을 이어받았습니다!`;
+        const notice = `👑 ${auth.user ? auth.user.id : profile.nickname}님이 새 방장이 되었습니다.`;
         addChatMessage({ system: true, text: notice });
         broadcastChatMessage({ system: true, text: notice });
         showToast(notice, 'success');
@@ -1955,7 +1927,6 @@
           const myIdx = state.players.findIndex(p => p.peerId === net.myPeerId);
           state.viewingPlayerIdx = myIdx >= 0 ? myIdx : 0;
 
-          // Register all other human players in guestIds
           state.players.forEach(p => {
             if (p.peerId && p.peerId !== net.myPeerId && p.peerId !== departedId && !p.isAI) {
               net.guestIds.add(p.peerId);
@@ -1993,7 +1964,6 @@
           };
           attachHostWsHandlers(ws);
           ws.onerror = () => {};
-
         } catch (_) {}
       }
 
@@ -2007,13 +1977,13 @@
               broadcastRoomState();
               if (net.room.status === 'playing') broadcastGameState();
             }
-            if (showNotice) showToast('내 서버(server.js) 연결이 정상입니다.', 'success');
+            if (showNotice) showToast('서버 연결 정상', 'success');
           } else if (net.role === 'host') {
             reconnectCustomWsHost();
-            if (showNotice) showToast('내 서버(server.js)에 방을 자동 재연결 중입니다...', 'info');
+            if (showNotice) showToast('방 재연결 중...', 'info');
           } else {
             updateConnectionPill('disconnected');
-            if (showNotice) showToast('서버 연결이 끊어졌습니다. 방 코드로 다시 입장해주세요.', 'warn');
+            if (showNotice) showToast('연결이 끊어졌습니다. 다시 입장해주세요.', 'warn');
           }
           return;
         }
@@ -2024,11 +1994,11 @@
             broadcastRoomState();
             if (net.room.status === 'playing') broadcastGameState();
           }
-          if (showNotice) showToast('중계 서버 연결이 정상입니다.', 'success');
+          if (showNotice) showToast('연결 정상', 'success');
         } else {
           updateConnectionPill('reconnecting');
           try { net.client.reconnect(); } catch (_) {}
-          if (showNotice) showToast('중계 서버에 다시 연결 중입니다...', 'info');
+          if (showNotice) showToast('재연결 중...', 'info');
         }
       }
 
@@ -2074,7 +2044,7 @@
 
       function createOnlineRoom() {
         if (typeof WebSocket === 'undefined') {
-          setOnlineStatus('이 브라우저에서는 WebSocket을 지원하지 않습니다.', true);
+          setOnlineStatus('WebSocket을 지원하지 않습니다.', true);
           return;
         }
         if (!auth.user) {
@@ -2090,13 +2060,9 @@
 
         if (net.transport === 'custom_ws') {
           const wsUrl = DEFAULT_CUSTOM_WS_URL;
-          if (!/^wss?:\/\//.test(wsUrl)) {
-            setOnlineStatus('내 서버 WebSocket 주소(예: wss://도메인/ws)를 입력하거나 공용 중계(EMQX)를 선택해주세요.', true);
-            return;
-          }
           net.customWsUrl = wsUrl;
           try { localStorage.setItem('hoola5_ws_url', wsUrl); } catch (_) {}
-          setOnlineStatus(`내 서버에 대기실 #${code} 생성 중...`);
+          setOnlineStatus(`대기실 #${code} 생성 중...`);
           try {
             const ws = new WebSocket(wsUrl);
             net.ws = ws;
@@ -2108,7 +2074,7 @@
             let hostedOk = false;
             const connTimeout = setTimeout(() => {
               if (!hostedOk) {
-                setOnlineStatus('서버 응답 시간 초과 — 로그아웃 후 다시 로그인하거나 서버 상태를 확인해주세요.', true);
+                setOnlineStatus('서버 응답 시간 초과 — 다시 시도해주세요.', true);
                 cleanupNetwork(false);
               }
             }, 9000);
@@ -2126,12 +2092,12 @@
                 updateConnectionPill('connected');
                 requestScreenWakeLock();
                 net.room = {
-                  maxPlayers: 4,
+                  maxPlayers: 3,
                   jokerCount: 0,
                   allowWrap: true,
-                  baseStep: 500,
-          stopLimit: 10,
-          thankYouMode: 'all',
+                  baseStep: 1000,
+                  stopLimit: 10,
+                  thankYouMode: 'own',
                   status: 'waiting',
                   seats: [{
                     peerId: clientId,
@@ -2143,7 +2109,7 @@
                   }]
                 };
                 setOnlineStatus('');
-                addChatMessage({ system: true, text: `DB 연동 대기실 #${code} 생성 완료! 방장이 나가도 게임이 자동 유지됩니다.` });
+                addChatMessage({ system: true, text: `대기실 #${code} 생성 완료` });
                 openWaitingRoomScreen();
                 persistRoomSnapshotToDB();
                 sfx.meld();
@@ -2152,12 +2118,12 @@
                 createOnlineRoom();
               } else if (msg.t === 'hoola_auth_err' || msg.t === 'hoola_error') {
                 clearTimeout(connTimeout);
-                setOnlineStatus(msg.reason || msg.error || '대기실 생성이 거부되었습니다.', true);
+                setOnlineStatus(msg.reason || msg.error || '대기실 생성 실패', true);
                 cleanupNetwork(false);
                 sfx.error();
               } else if (msg.t === 'hoola_msg' && msg.payload && msg.payload.type === 'REJECT') {
                 clearTimeout(connTimeout);
-                setOnlineStatus(msg.payload.reason || '대기실 생성 권한이 없습니다. 다시 로그인해주세요.', true);
+                setOnlineStatus(msg.payload.reason || '다시 로그인해주세요.', true);
                 cleanupNetwork(false);
                 sfx.error();
               } else if (msg.t === 'hoola_from_guest' && msg.from && msg.payload) {
@@ -2168,7 +2134,7 @@
             };
             ws.onerror = () => {
               clearTimeout(connTimeout);
-              setOnlineStatus('내 서버 WebSocket 연결에 실패했습니다. 주소(/ws 등)를 확인해주세요.', true);
+              setOnlineStatus('서버 연결 실패', true);
             };
             ws.onclose = () => {
               clearTimeout(connTimeout);
@@ -2178,13 +2144,12 @@
               }
             };
           } catch (_) {
-            setOnlineStatus('WebSocket 주소 형식이 올바르지 않습니다. (예: wss://도메인/ws)', true);
+            setOnlineStatus('WebSocket 연결 오류', true);
           }
           return;
         }
 
-        setOnlineStatus(`중계 서버에 대기실 #${code} 생성 중...`);
-
+        setOnlineStatus(`대기실 #${code} 생성 중...`);
         try {
           const client = mqtt.connect(MQTT_BROKER_URL, {
             clientId,
@@ -2213,18 +2178,18 @@
             requestScreenWakeLock();
             client.subscribe(roomTopic(code, 'toHost'), err => {
               if (err) {
-                setOnlineStatus('방 채널 구독에 실패했습니다. 다시 시도해주세요.', true);
+                setOnlineStatus('채널 구독 실패', true);
                 return;
               }
               if (!openedOnce) {
                 openedOnce = true;
                 net.room = {
-                  maxPlayers: 2,
+                  maxPlayers: 3,
                   jokerCount: 0,
                   allowWrap: true,
-                  baseStep: 500,
-          stopLimit: 10,
-          thankYouMode: 'all',
+                  baseStep: 1000,
+                  stopLimit: 10,
+                  thankYouMode: 'own',
                   status: 'waiting',
                   seats: [{
                     peerId: clientId,
@@ -2236,7 +2201,7 @@
                   }]
                 };
                 setOnlineStatus('');
-                addChatMessage({ system: true, text: `대기실 #${code}이 열렸습니다! 폰/PC 어디서든 방 코드만 입력하면 바로 접속됩니다.` });
+                addChatMessage({ system: true, text: `대기실 #${code} 생성 완료` });
                 openWaitingRoomScreen();
                 sfx.meld();
               } else {
@@ -2253,21 +2218,15 @@
             handleHostIncomingMessage(msg.from, msg);
           });
 
-          client.on('reconnect', () => {
-            updateConnectionPill('reconnecting');
-          });
-
-          client.on('offline', () => {
-            updateConnectionPill('reconnecting');
-          });
-
+          client.on('reconnect', () => updateConnectionPill('reconnecting'));
+          client.on('offline', () => updateConnectionPill('reconnecting'));
           client.on('error', err => {
             if (!openedOnce) {
-              setOnlineStatus(`중계 서버 연결 오류: ${err && err.message ? err.message : '네트워크를 확인해주세요.'}`, true);
+              setOnlineStatus(`연결 오류: ${err && err.message ? err.message : ''}`, true);
             }
           });
         } catch (_) {
-          setOnlineStatus('온라인 대기실을 시작할 수 없습니다. 인터넷 연결을 확인해주세요.', true);
+          setOnlineStatus('대기실 시작 실패', true);
         }
       }
 
@@ -2285,10 +2244,7 @@
           }
 
           if (net.room.status !== 'waiting') {
-            netSendToGuest(guestId, {
-              type: 'REJECT',
-              reason: '이미 게임이 진행 중인 방입니다.'
-            });
+            netSendToGuest(guestId, { type: 'REJECT', reason: '게임 진행 중입니다.' });
             net.guestIds.delete(guestId);
             return;
           }
@@ -2298,10 +2254,7 @@
             if (aiIdx !== -1) {
               net.room.seats.splice(aiIdx, 1);
             } else {
-              netSendToGuest(guestId, {
-                type: 'REJECT',
-                reason: `방 정원(${net.room.maxPlayers}명)이 가득 찼습니다.`
-              });
+              netSendToGuest(guestId, { type: 'REJECT', reason: `정원(${net.room.maxPlayers}명) 초과` });
               net.guestIds.delete(guestId);
               return;
             }
@@ -2317,7 +2270,7 @@
             isHost: false,
             ready: false
           });
-          addChatMessage({ system: true, text: `${avatar} ${name}님이 입장했습니다.` });
+          addChatMessage({ system: true, text: `${name}님 입장` });
           broadcastRoomState();
           sfx.thankyou();
         } else if (msg.type === 'LEAVE') {
@@ -2326,7 +2279,7 @@
             const idx = net.room.seats.findIndex(s => s.peerId === guestId);
             if (idx !== -1) {
               const removed = net.room.seats.splice(idx, 1)[0];
-              addChatMessage({ system: true, text: `${removed.name}님이 퇴장했습니다.` });
+              addChatMessage({ system: true, text: `${removed.name}님 퇴장` });
               broadcastRoomState();
             }
           } else if (net.room.status === 'playing') {
@@ -2365,12 +2318,12 @@
 
       function joinOnlineRoom(rawCode) {
         if (typeof WebSocket === 'undefined') {
-          setOnlineStatus('이 브라우저에서는 WebSocket을 지원하지 않습니다.', true);
+          setOnlineStatus('WebSocket을 지원하지 않습니다.', true);
           return;
         }
         const code = String(rawCode || '').replace(/\D/g, '').slice(0, 4);
         if (code.length !== 4) {
-          setOnlineStatus('4자리 숫자 방 코드를 입력해주세요.', true);
+          setOnlineStatus('4자리 숫자를 입력하세요.', true);
           sfx.error();
           return;
         }
@@ -2386,13 +2339,9 @@
 
         if (net.transport === 'custom_ws') {
           const wsUrl = DEFAULT_CUSTOM_WS_URL;
-          if (!/^wss?:\/\//.test(wsUrl)) {
-            setOnlineStatus('내 서버 WebSocket 주소(예: wss://도메인/ws)를 입력하거나 공용 중계(EMQX)를 선택해주세요.', true);
-            return;
-          }
           net.customWsUrl = wsUrl;
           try { localStorage.setItem('hoola5_ws_url', wsUrl); } catch (_) {}
-          setOnlineStatus(`내 서버 접속 중... (방 #${code})`);
+          setOnlineStatus(`방 #${code} 접속 중...`);
           try {
             const ws = new WebSocket(wsUrl);
             net.ws = ws;
@@ -2404,14 +2353,13 @@
             let synced = false;
             const timeoutId = setTimeout(() => {
               if (!synced) {
-                setOnlineStatus(`방 #${code} 응답 시간 초과 — 서버 주소와 방 코드를 확인해주세요.`, true);
+                setOnlineStatus(`방 #${code} 응답 없음`, true);
                 cleanupNetwork(false);
               }
             }, 10000);
 
             ws.onopen = () => {
               startWsHeartbeat();
-              setOnlineStatus(`방 #${code} 입장 요청 중...`);
               wsSend({ t: 'hoola_join', code, clientId, name: profile.nickname, avatar: profile.avatar });
             };
             ws.onmessage = ev => {
@@ -2426,7 +2374,7 @@
               }
               if (msg.t === 'hoola_auth_err' || msg.t === 'hoola_error') {
                 clearTimeout(timeoutId);
-                setOnlineStatus(msg.reason || msg.error || '입장이 거부되었습니다.', true);
+                setOnlineStatus(msg.reason || msg.error || '입장 실패', true);
                 cleanupNetwork(false);
                 sfx.error();
                 return;
@@ -2444,23 +2392,22 @@
             };
             ws.onerror = () => {
               clearTimeout(timeoutId);
-              setOnlineStatus('내 서버 WebSocket 연결에 실패했습니다.', true);
+              setOnlineStatus('서버 연결 실패', true);
             };
             ws.onclose = () => {
               clearTimeout(timeoutId);
               if (net.mode === 'online') {
-                showToast('서버와의 연결이 종료되었습니다.', 'error');
+                showToast('연결이 종료되었습니다.', 'error');
                 returnToLobby();
               }
             };
           } catch (_) {
-            setOnlineStatus('WebSocket 주소 형식이 올바르지 않습니다.', true);
+            setOnlineStatus('연결 오류', true);
           }
           return;
         }
 
-        setOnlineStatus(`중계 서버 접속 중... (방 #${code})`);
-
+        setOnlineStatus(`방 #${code} 접속 중...`);
         try {
           const client = mqtt.connect(MQTT_BROKER_URL, {
             clientId,
@@ -2485,7 +2432,7 @@
           let synced = false;
           const timeoutId = setTimeout(() => {
             if (!synced) {
-              setOnlineStatus(`방 #${code}에서 응답이 없습니다. 방 코드가 맞는지, 방장이 대기실에 있는지 확인해주세요.`, true);
+              setOnlineStatus(`방 #${code} 응답 없음`, true);
               cleanupNetwork(false);
             }
           }, 12000);
@@ -2502,14 +2449,13 @@
 
           client.on('connect', () => {
             updateConnectionPill('connected');
-            setOnlineStatus(`방 #${code} 입장 요청 전송 중...`);
             client.subscribe([
               roomTopic(code, 'broadcast'),
               roomTopic(code, `to/${clientId}`)
             ], err => {
               if (err) {
                 clearTimeout(timeoutId);
-                setOnlineStatus('채널 연결에 실패했습니다. 다시 시도해주세요.', true);
+                setOnlineStatus('채널 연결 실패', true);
                 return;
               }
               sendJoin();
@@ -2540,30 +2486,27 @@
             handleGuestMessage(msg);
           });
 
-          client.on('reconnect', () => {
-            updateConnectionPill('reconnecting');
-          });
-
+          client.on('reconnect', () => updateConnectionPill('reconnecting'));
           client.on('error', err => {
             if (!synced) {
               clearTimeout(timeoutId);
-              setOnlineStatus(`중계 서버 연결 실패: ${err && err.message ? err.message : '네트워크를 확인해주세요.'}`, true);
+              setOnlineStatus(`연결 실패: ${err && err.message ? err.message : ''}`, true);
             }
           });
         } catch (_) {
-          setOnlineStatus('연결을 시작할 수 없습니다.', true);
+          setOnlineStatus('연결 시작 실패', true);
         }
       }
 
       function handleGuestMessage(msg) {
         if (!msg || typeof msg !== 'object') return;
         if (msg.type === 'REJECT') {
-          setOnlineStatus(msg.reason || '입장이 거절되었습니다.', true);
+          setOnlineStatus(msg.reason || '입장 거절', true);
           cleanupNetwork(false);
           return;
         }
         if (msg.type === 'HOST_CLOSED') {
-          showToast('방장이 나가거나 연결이 끊겨 게임이 종료되었습니다.', 'error');
+          showToast('방장이 나가 게임이 종료되었습니다.', 'error');
           returnToLobby();
           return;
         }
@@ -2583,7 +2526,7 @@
           addChatMessage(msg.entry);
           sfx.chat();
         } else if (msg.type === 'KICKED') {
-          showToast('방장에 의해 대기실에서 내보내졌습니다.', 'warn');
+          showToast('대기실에서 내보내졌습니다.', 'warn');
           returnToLobby();
         } else if (msg.type === 'STATE_SYNC') {
           applyGuestGameState(msg);
@@ -2635,11 +2578,11 @@
       function renderChatPanels() {
         const html = net.chatMessages.map(m => {
           if (m.system) {
-            return `<div class="text-center text-[11px] text-emerald-300/80 py-0.5">— ${escapeHTML(m.text)} —</div>`;
+            return `<div class="text-center text-[10px] text-emerald-300/80 py-0.5">— ${escapeHTML(m.text)} —</div>`;
           }
           return `
-            <div class="bg-white/5 rounded-lg px-2.5 py-1.5">
-              <span class="font-bold text-amber-200 mr-1.5">${escapeHTML(m.avatar)} ${escapeHTML(m.sender)}</span>
+            <div class="bg-white/5 rounded-lg px-2 py-1">
+              <span class="font-bold text-amber-200 mr-1">${escapeHTML(m.avatar)} ${escapeHTML(m.sender)}</span>
               <span class="text-slate-100 break-words">${escapeHTML(m.text)}</span>
             </div>
           `;
@@ -2648,7 +2591,7 @@
         ['wr-chat-messages', 'ingame-chat-messages'].forEach(id => {
           const el = document.getElementById(id);
           if (!el) return;
-          el.innerHTML = html || '<div class="text-center text-slate-500 py-8 text-xs">친구들이 입장하면 대화를 나눠보세요!</div>';
+          el.innerHTML = html || '<div class="text-center text-slate-500 py-5 text-[11px]">채팅 없음</div>';
           el.scrollTop = el.scrollHeight;
         });
       }
@@ -2698,9 +2641,9 @@
             rules: {
               allowWrap: net.room.allowWrap,
               jokerCount: net.room.jokerCount,
-              baseStep: net.room.baseStep || 500,
+              baseStep: net.room.baseStep || 1000,
               stopLimit: net.room.stopLimit || 10,
-              thankYouMode: net.room.thankYouMode || 'all'
+              thankYouMode: net.room.thankYouMode || 'own'
             },
             turnCount: state.turnCount
           };
@@ -2722,9 +2665,9 @@
         net.room.status = 'playing';
         net.room.allowWrap = vs.rules.allowWrap;
         net.room.jokerCount = vs.rules.jokerCount;
-        net.room.baseStep = vs.rules.baseStep || 500;
+        net.room.baseStep = vs.rules.baseStep || 1000;
         net.room.stopLimit = vs.rules.stopLimit || 10;
-        net.room.thankYouMode = vs.rules.thankYouMode || 'all';
+        net.room.thankYouMode = vs.rules.thankYouMode || 'own';
         if (typeof vs.turnCount === 'number') state.turnCount = vs.turnCount;
 
         const wasMyDrawPhase = (state.phase === 'draw' && state.currentPlayerIdx === vs.myPlayerIdx);
@@ -2864,9 +2807,8 @@
         document.getElementById('wr-room-code').textContent = net.roomCode;
         document.getElementById('wr-role-badge').textContent = isHost ? '👑 방장' : '📱 참가자';
         document.getElementById('wr-player-fraction').textContent = `${net.room.seats.length}/${net.room.maxPlayers}`;
-        document.getElementById('wr-rules-lock-hint').textContent = isHost ? '클릭해서 변경' : '방장이 설정 중';
+        document.getElementById('wr-rules-lock-hint').textContent = isHost ? '방장 설정' : '방장만 변경';
 
-        // Seats list (up to maxPlayers)
         const list = document.getElementById('wr-seats-list');
         list.innerHTML = '';
         for (let i = 0; i < net.room.maxPlayers; i++) {
@@ -2874,44 +2816,42 @@
           const row = document.createElement('div');
           if (seat) {
             const isMe = seat.peerId === net.myPeerId;
-            row.className = `flex items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 border ${
+            row.className = `flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 border ${
               isMe ? 'bg-amber-500/15 border-amber-400/45' : 'bg-white/5 border-white/10'
             }`;
             row.innerHTML = `
-              <div class="flex items-center gap-2.5 min-w-0">
-                <span class="w-6 h-6 rounded-full bg-black/40 text-xs font-black text-amber-300 flex items-center justify-center shrink-0">${i + 1}</span>
-                <span class="text-xl shrink-0">${escapeHTML(seat.avatar)}</span>
-                <div class="min-w-0">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-sm font-bold text-white truncate">${escapeHTML(seat.name)}</span>
-                    ${isMe ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 font-black">나</span>' : ''}
-                    ${seat.isHost ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/25 text-amber-200 font-bold">방장</span>' : ''}
-                    ${seat.isAI ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/25 text-sky-200 font-bold">AI 봇</span>' : ''}
-                  </div>
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-5 h-5 rounded-full bg-black/40 text-[11px] font-black text-amber-300 flex items-center justify-center shrink-0">${i + 1}</span>
+                <span class="text-base shrink-0">${escapeHTML(seat.avatar)}</span>
+                <div class="flex items-center gap-1 min-w-0">
+                  <span class="text-xs sm:text-sm font-bold text-white truncate">${escapeHTML(seat.name)}</span>
+                  ${isMe ? '<span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 font-black shrink-0">나</span>' : ''}
+                  ${seat.isHost ? '<span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/25 text-amber-200 font-bold shrink-0">방장</span>' : ''}
+                  ${seat.isAI ? '<span class="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/25 text-sky-200 font-bold shrink-0">AI</span>' : ''}
                 </div>
               </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${
+              <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${
                   seat.ready ? 'bg-emerald-500/25 text-emerald-200 border border-emerald-400/40' : 'bg-slate-700/70 text-slate-300'
                 }">
-                  ${seat.isHost ? '방장' : (seat.ready ? '✅ 준비완료' : '⏳ 대기중')}
+                  ${seat.isHost ? '방장' : (seat.ready ? '준비완료' : '대기')}
                 </span>
                 ${isHost && !seat.isHost ? `
-                  <button type="button" data-kick-idx="${i}" class="px-2 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/35 text-rose-200 text-[11px] font-bold transition">
+                  <button type="button" data-kick-idx="${i}" class="px-2 py-0.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/35 text-rose-200 text-[10px] font-bold transition whitespace-nowrap shrink-0">
                     ${seat.isAI ? '제거' : '강퇴'}
                   </button>
                 ` : ''}
               </div>
             `;
           } else {
-            row.className = 'flex items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 border border-dashed border-white/15 bg-black/20';
+            row.className = 'flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 border border-dashed border-white/15 bg-black/20';
             row.innerHTML = `
-              <div class="flex items-center gap-2.5 text-slate-400">
-                <span class="w-6 h-6 rounded-full bg-white/5 text-xs font-bold flex items-center justify-center">${i + 1}</span>
-                <span class="text-xs font-medium">빈 자리 — 친구의 접속을 기다리는 중...</span>
+              <div class="flex items-center gap-2 text-slate-400 min-w-0">
+                <span class="w-5 h-5 rounded-full bg-white/5 text-[11px] font-bold flex items-center justify-center shrink-0">${i + 1}</span>
+                <span class="text-xs font-medium truncate">빈자리</span>
               </div>
               ${isHost ? `
-                <button type="button" data-add-ai="1" class="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-sky-200 text-[11px] font-bold transition">
+                <button type="button" data-add-ai="1" class="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-sky-200 text-[11px] font-bold transition whitespace-nowrap shrink-0">
                   + AI 봇 추가
                 </button>
               ` : ''}
@@ -2920,7 +2860,6 @@
           list.appendChild(row);
         }
 
-        // Seat buttons for host
         if (isHost) {
           list.querySelectorAll('[data-add-ai]').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -2948,14 +2887,13 @@
                 net.guestIds.delete(removed.peerId);
               }
               if (removed) {
-                addChatMessage({ system: true, text: `${removed.name}님이 대기실에서 제외되었습니다.` });
+                addChatMessage({ system: true, text: `${removed.name} 제외` });
               }
               broadcastRoomState();
             });
           });
         }
 
-        // Room rule buttons styling
         document.querySelectorAll('.wr-max-btn').forEach(btn => {
           const v = Number(btn.dataset.wrMax);
           const active = v === net.room.maxPlayers;
@@ -2980,7 +2918,7 @@
             active ? 'bg-emerald-400 text-slate-950 border-emerald-300' : 'bg-white/5 text-slate-300 border-white/10'
           } ${btn.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white/15'}`;
         });
-        const curStep = Number(net.room.baseStep) || 500;
+        const curStep = Number(net.room.baseStep) || 1000;
         document.querySelectorAll('.wr-step-btn').forEach(btn => {
           const v = Number(btn.dataset.wrStep);
           const active = v === curStep;
@@ -3013,10 +2951,9 @@
           for (let r = 2; r <= net.room.maxPlayers; r++) {
             parts.push(`${r}등 -${((r - 1) * curStep).toLocaleString('ko-KR')}P`);
           }
-          previewEl.textContent = `정산 미리보기: 1등 우승 / ${parts.join(' / ')}`;
+          previewEl.textContent = `1등 우승 / ${parts.join(' / ')}`;
         }
 
-        // Footer buttons
         const startBtn = document.getElementById('btn-host-start-online');
         const readyBtn = document.getElementById('btn-toggle-ready');
         if (isHost) {
@@ -3026,8 +2963,8 @@
           const allReady = net.room.seats.every(s => s.isHost || s.isAI || s.ready);
           startBtn.disabled = !(enough && allReady);
           startBtn.textContent = !enough
-            ? '최소 2명 이상 필요 (AI 추가 가능)'
-            : (!allReady ? '참가자 준비 대기 중...' : `게임 시작하기 (${net.room.seats.length}명)`);
+            ? '최소 2명 필요'
+            : (!allReady ? '준비 대기 중' : `게임 시작 (${net.room.seats.length}명)`);
         } else {
           startBtn.classList.add('hidden');
           readyBtn.classList.remove('hidden');
@@ -3035,8 +2972,8 @@
           const amReady = Boolean(me && me.ready);
           readyBtn.textContent = amReady ? '준비 취소' : '✅ 준비 완료';
           readyBtn.className = amReady
-            ? 'flex-1 sm:flex-none px-6 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-black text-sm transition'
-            : 'flex-1 sm:flex-none px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg transition';
+            ? 'px-5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-black text-sm transition whitespace-nowrap'
+            : 'px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow transition whitespace-nowrap';
         }
       }
 
@@ -3073,35 +3010,6 @@
         renderLobby();
       }
 
-      function startOfflineMatch() {
-        cleanupNetwork();
-        net.mode = 'offline';
-        state.round = 1;
-        state.roundHistory = [];
-        state.players = [];
-        for (let i = 0; i < config.playerCount; i++) {
-          state.players.push({
-            id: i,
-            peerId: null,
-            name: config.seats[i].name || `플레이어 ${i + 1}`,
-            avatar: AVATARS[i],
-            isAI: config.seats[i].isAI,
-            hand: [],
-            totalScore: 0,
-            hasMeldedBeforeThisTurn: false,
-            meldedThisTurn: false,
-            lastAction: ''
-          });
-        }
-        state.screen = 'game';
-        document.getElementById('lobby-screen').classList.add('hidden');
-        document.getElementById('waiting-room-screen').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('hidden');
-        document.body.classList.add('in-game-mobile');
-        document.getElementById('round-badge').classList.remove('hidden');
-        startRound();
-      }
-
       function startOnlineMatchAsHost() {
         if (net.mode !== 'online' || net.role !== 'host') return;
         if (net.room.seats.length < 2) return;
@@ -3110,7 +3018,7 @@
         state.roundHistory = [];
         state.players = net.room.seats.map((seat, idx) => ({
           id: idx,
-          peerId: seat.peerId, // 'HOST' | guestPeerId | null (AI)
+          peerId: seat.peerId,
           name: seat.name,
           avatar: seat.avatar,
           isAI: seat.isAI,
@@ -3225,10 +3133,9 @@
         renderGame();
       }
 
-      /* ==================== PLAYER ACTIONS (HOST / OFFLINE) ==================== */
+      /* ==================== PLAYER ACTIONS ==================== */
       function findHighestDiscardCandidate(hand) {
         if (!hand || hand.length === 0) return null;
-        // 조커(rank 0)를 실수로 버리지 않도록 일반 카드 중 가장 높은 숫자(K->Q->J->10...) 우선 선택
         const normals = hand.filter(c => c.rank > 0);
         const pool = normals.length > 0 ? normals : hand;
         return pool.reduce((best, c) => (cardPoints(c) > cardPoints(best) ? c : best), pool[0]);
@@ -3287,7 +3194,7 @@
           }
         }
 
-        const msg = `${p.name}님 땡큐! 가져온 카드로 등록 또는 붙이기를 진행합니다.`;
+        const msg = `${p.name}님 땡큐!`;
         showToast(msg, 'success');
         renderGame();
         broadcastGameState(msg, 'success', 'thankyou');
@@ -3299,7 +3206,7 @@
         const val = validateNewMeld(cards);
         if (!val) {
           if (playerIdx === state.viewingPlayerIdx && !p.isAI) {
-            showToast('유효한 조합이 아닙니다. (스트레이트 3장+, 트리플 3장+, 7 단독)', 'error');
+            showToast('유효한 조합이 아닙니다.', 'error');
             sfx.error();
           }
           return false;
@@ -3344,7 +3251,7 @@
         const p = state.players[playerIdx];
         if (!hasPlayerRegistered(p)) {
           if (playerIdx === state.viewingPlayerIdx && !p.isAI) {
-            showToast('공식 룰: 먼저 1회 이상 등록한 뒤에 테이블 패에 붙일 수 있습니다.', 'warn');
+            showToast('먼저 1회 이상 등록한 뒤에 붙일 수 있습니다.', 'warn');
             sfx.error();
           }
           return false;
@@ -3355,7 +3262,7 @@
         const res = validateAttachToMeld(meld, cards);
         if (!res) {
           if (playerIdx === state.viewingPlayerIdx && !p.isAI) {
-            showToast('해당 조합에 붙일 수 없는 카드입니다.', 'error');
+            showToast('붙일 수 없는 카드입니다.', 'error');
             sfx.error();
           }
           return false;
@@ -3388,7 +3295,7 @@
         }
 
         renderGame();
-        broadcastGameState(`${p.name}님 카드 붙이기!`, 'success', 'meld');
+        broadcastGameState(`${p.name}님 붙이기!`, 'success', 'meld');
         return true;
       }
 
@@ -3398,7 +3305,7 @@
 
         if (state.mustUseCardId) {
           if (playerIdx === state.viewingPlayerIdx && !p.isAI) {
-            showToast('땡큐로 가져온 카드를 먼저 등록하거나 붙여야 합니다!', 'warn');
+            showToast('땡큐 카드를 먼저 등록하거나 붙여야 합니다!', 'warn');
             sfx.error();
           }
           return false;
@@ -3433,7 +3340,6 @@
 
         const nextIdx = (playerIdx + 1) % state.players.length;
 
-        // Build Thank You offer queue for eligible humans
         const queue = findHumanThankYouCandidates(playerIdx, discarded);
         if (queue.length > 0) {
           state.thankYouQueue = queue;
@@ -3446,9 +3352,7 @@
       }
 
       function findHumanThankYouCandidates(discarderIdx, discardedCard) {
-        // 'own'(정통 훌라) 모드에서는 다른 사람 턴 끼어들기 땡큐 금지 (내 차례 draw 단계에서만 버림 패 줍기 가능)
         if (getActiveThankYouMode() === 'own') return [];
-        // Offline multi-human: skip out-of-turn prompt to avoid leaking hands
         if (net.mode === 'offline' && countOfflineHumanPlayers() > 1) return [];
         const list = [];
         for (let offset = 1; offset < state.players.length; offset++) {
@@ -3491,31 +3395,24 @@
       function canPlayerStop(player) {
         if (state.phase !== 'draw' && state.phase !== 'action') return false;
         if (state.mustUseCardId) return false;
-        // 첫 1바퀴(모든 플레이어가 최소 1턴씩 돌기 전)에는 스톱 불가
         if (state.turnCount <= state.players.length) return false;
-        // 공식 룰: 1회 이상 등록을 마친 상태에서 손패 합계가 기준 이하일 때 스톱 가능 (카드 뽑기 전 포함)
         if (!hasPlayerRegistered(player)) return false;
         const pts = handPoints(player.hand);
         return pts <= getActiveStopLimit();
       }
 
-      const RANK_BASE_STEP = 500; // 2등 -500P, 3등 -1,000P, 4등 -1,500P, 5등 -2,000P
+      const RANK_BASE_STEP = 1000;
 
       function formatPts(val) {
         const sign = val > 0 ? '+' : '';
         return `${sign}${val.toLocaleString('ko-KR')}P`;
       }
 
-      /**
-       * Computes rank-tiered settlement (1등 우승, 2등 -500P, 3등 -1000P, 4등 -1500P, 5등 -2000P).
-       * Returns { deltas: number[], ranks: number[] } (1-based rank per player index).
-       */
       function computeRankSettlement(winnerIdx, { isHoola = false, applyBagaji = true, dokbakCallerIdx = null } = {}) {
         const n = state.players.length;
         const deltas = new Array(n).fill(0);
         const ranks = new Array(n).fill(1);
 
-        // Sort all non-winners by remaining hand points asc (tie-break: fewer cards, then melded)
         const others = state.players
           .map((p, idx) => ({
             idx,
@@ -3536,14 +3433,14 @@
         let wonTotal = 0;
 
         others.forEach((o, pos) => {
-          const rank = pos + 2; // 2, 3, 4, 5
+          const rank = pos + 2;
           ranks[o.idx] = rank;
           const baseLoss = (rank - 1) * (Number(net.room.baseStep) || RANK_BASE_STEP);
           const bagajiMult = (applyBagaji && !o.melded) ? 2 : 1;
           const loss = baseLoss * hoolaMult * bagajiMult;
 
           if (dokbakCallerIdx !== null) {
-            wonTotal += baseLoss; // Dokbak: caller absorbs all rank losses
+            wonTotal += baseLoss;
           } else {
             deltas[o.idx] = -loss;
             wonTotal += loss;
@@ -3564,7 +3461,7 @@
         const caller = state.players[playerIdx];
         if (!canPlayerStop(caller)) {
           if (playerIdx === state.viewingPlayerIdx) {
-            showToast(`1회 이상 등록 후(2바퀴째부터) 손패 합계가 ${getActiveStopLimit()}점 이하일 때 스톱할 수 있습니다.`, 'warn');
+            showToast(`1회 이상 등록 후(2바퀴째부터) ${getActiveStopLimit()}점 이하일 때 스톱 가능합니다.`, 'warn');
             sfx.error();
           }
           return;
@@ -3589,7 +3486,7 @@
 
         if (isSuccess) {
           const { deltas, ranks } = computeRankSettlement(playerIdx, { isHoola: false, applyBagaji: true });
-          applyRoundScores(deltas, playerIdx, '스톱 승리!', `${caller.name}님이 ${callerPts}점으로 최저점 스톱에 성공했습니다!`, false, ranks);
+          applyRoundScores(deltas, playerIdx, '스톱 승리!', `${caller.name}님 ${callerPts}점 스톱 성공!`, false, ranks);
         } else {
           const winnerIdx = lowestOtherIdx;
           const { deltas, ranks } = computeRankSettlement(winnerIdx, { isHoola: false, applyBagaji: false, dokbakCallerIdx: playerIdx });
@@ -3597,7 +3494,7 @@
             deltas,
             winnerIdx,
             '스톱 실패 (독박!)',
-            `${caller.name}님(${callerPts}점)보다 ${state.players[winnerIdx].name}님(${lowestOther}점)이 낮아 전체 패자 몫을 독박 부담했습니다!`,
+            `${caller.name}님(${callerPts}점) 독박 패배!`,
             false,
             ranks
           );
@@ -3618,8 +3515,8 @@
 
         const title = isHoola ? `🎉 훌라!` : `${winner.name} 1등 우승!`;
         const sub = isHoola
-          ? `${winner.name}님이 단 한 턴에 모든 패를 털어내며 2배 훌라 우승을 거뒀습니다!`
-          : `${winner.name}님이 손패를 모두 비우며 순위 차등 정산으로 우승했습니다.`;
+          ? `${winner.name}님 2배 훌라 우승!`
+          : `${winner.name}님 1등 우승!`;
         applyRoundScores(deltas, winnerIdx, title, sub, isHoola, ranks);
       }
 
@@ -3644,7 +3541,7 @@
           deltas,
           winnerIdx,
           '카드 소진 — 1등 우승!',
-          `중앙 카드 더미가 소진되어 ${state.players[winnerIdx].name}님이 ${minPts}점으로 1등 우승했습니다.`,
+          `${state.players[winnerIdx].name}님 ${minPts}점으로 1등 우승!`,
           false,
           ranks
         );
@@ -3675,7 +3572,6 @@
         if (state.phase === 'round_over') return;
         const ai = state.players[aiIdx];
 
-        // 공식 룰: 카드 뽑기 전 손패가 충분히 낮으면 바로 스톱!
         if (canPlayerStop(ai) && handPoints(ai.hand) <= Math.min(6, getActiveStopLimit())) {
           executeStop(aiIdx);
           return;
@@ -3888,7 +3784,6 @@
         if (!viewer) return;
         const isMyTurn = state.currentPlayerIdx === state.viewingPlayerIdx && !viewer.isAI;
 
-        // 1. Opponents
         const opponents = [];
         for (let offset = 1; offset < state.players.length; offset++) {
           opponents.push(state.players[(state.viewingPlayerIdx + offset) % state.players.length]);
@@ -3935,7 +3830,6 @@
           `;
         }).join('');
 
-        // 2. Deck & Discard
         const deckNum = state.deckCountOverride !== null ? state.deckCountOverride : state.deck.length;
         const discardNum = state.discardCountOverride !== null ? state.discardCountOverride : state.discardPile.length;
         document.getElementById('deck-count').textContent = `${deckNum}장`;
@@ -3962,7 +3856,6 @@
           document.getElementById('discard-hint-label').textContent = '';
         }
 
-        // 3. Table Melds
         const meldsArea = document.getElementById('table-melds-area');
         document.getElementById('meld-count-badge').textContent = `${state.tableMelds.length}개`;
         const selectedCards = viewer.hand.filter(c => state.selectedCardIds.has(c.id));
@@ -4015,7 +3908,6 @@
           });
         }
 
-        // 4. Thank You Banner
         const tyBanner = document.getElementById('thankyou-banner');
         const showTYForMe =
           state.phase === 'thankyou_offer' &&
@@ -4032,7 +3924,6 @@
           tyBanner.classList.add('hidden');
         }
 
-        // 5. Player Dock
         document.getElementById('active-player-name').textContent = `ID: ${viewer.name}`;
         document.getElementById('hand-points-badge').textContent = `손패 ${handPoints(viewer.hand)}점 (${viewer.hand.length}장)`;
         document.getElementById('hoola-eligible-badge').classList.toggle('hidden', viewer.hasMeldedBeforeThisTurn);
@@ -4080,7 +3971,6 @@
           });
         });
 
-        // 6. Action Buttons & Feedback
         const meldVal = (isMyTurn && state.phase === 'action') ? validateNewMeld(selectedCards) : null;
         const canMeld = Boolean(meldVal);
         const canAttach = attachMatches.length > 0;
@@ -4113,19 +4003,19 @@
         } else if (canMeld) {
           feedback.textContent = `✅ [${meldVal.label}] 가능! 등록하기 버튼을 누르세요.`;
         } else if (canAttach) {
-          feedback.textContent = `✨ 테이블 등록 패 ${attachMatches.length}곳에 붙이기 가능! (붙이기 버튼 또는 황금색 조합 클릭)`;
+          feedback.textContent = `✨ 테이블 등록 패 ${attachMatches.length}곳에 붙이기 가능!`;
         } else if (selectedCards.length === 1) {
           const c = selectedCards[0];
           const nm = c.rank === 0 ? 'JOKER' : `${RANK_LABELS[c.rank]}${SUIT_META[c.suit].symbol}`;
           feedback.textContent = `[${nm}] 선택됨 — 버리기 버튼으로 턴을 마칠 수 있습니다.`;
         } else {
-          feedback.textContent = `${selectedCards.length}장 선택됨 — 스트레이트(같은 무늬 연속 3장+) 또는 같은 숫자 3장+을 맞춰보세요.`;
+          feedback.textContent = `${selectedCards.length}장 선택됨`;
         }
       }
 
       /* ==================== MODALS ==================== */
       function showResultModal(winnerIdx, deltas, title, subtitle, isHoola, aborted = false, ranks = null) {
-        document.getElementById('result-badge').textContent = aborted ? '⚠️ 상대방 이탈' : (isHoola ? '🔥 훌라 2배 보너스' : `${state.round} 라운드 종료 (순위 차등)`);
+        document.getElementById('result-badge').textContent = aborted ? '⚠️ 상대방 이탈' : (isHoola ? '🔥 훌라 2배 보너스' : `${state.round} 라운드 종료`);
         document.getElementById('result-title').textContent = title;
         document.getElementById('result-subtitle').textContent = subtitle;
 
@@ -4221,20 +4111,16 @@
       }
 
       /* ==================== EVENT BINDINGS ==================== */
-
-
-      // Login & ID Issuance Controls
       document.getElementById('btn-toggle-pw-vis').addEventListener('click', () => {
         const pwInp = document.getElementById('login-pw');
-        const isHidden = pwInp.type === 'password';
-        pwInp.type = isHidden ? 'text' : 'password';
+        pwInp.type = pwInp.type === 'password' ? 'text' : 'password';
       });
 
       document.getElementById('btn-issue-id').addEventListener('click', async () => {
         sfx.init();
         const btn = document.getElementById('btn-issue-id');
         btn.disabled = true;
-        setLoginStatus('새 ID를 발급하고 50,000P를 적립하는 중...');
+        setLoginStatus('새 ID 발급 중...');
         const reqId = document.getElementById('login-id').value;
         const res = await AccountDB.issueAccount(reqId);
         btn.disabled = false;
@@ -4251,14 +4137,14 @@
         document.getElementById('issued-id-val').textContent = res.user.id;
         document.getElementById('issued-pw-val').textContent = res.user.password;
         document.getElementById('issued-account-box').classList.remove('hidden');
-        setLoginStatus(`ID [${res.user.id}] 발급 완료! (50,000P 지급)`, 'success');
+        setLoginStatus(`ID [${res.user.id}] 발급 완료 (50,000P)`, 'success');
         sfx.thankyou();
       });
 
       document.getElementById('btn-copy-issued').addEventListener('click', () => {
         if (!auth.lastIssued) return;
-        const txt = `훌라 5 계정 | ID: ${auth.lastIssued.id} / 비밀번호: ${auth.lastIssued.password}`;
-        copyTextToClipboard(txt, 'ID와 비밀번호가 복사되었습니다!');
+        const txt = `훌라 5 | ID: ${auth.lastIssued.id} / PW: ${auth.lastIssued.password}`;
+        copyTextToClipboard(txt, '복사되었습니다.');
       });
 
       document.getElementById('btn-use-issued').addEventListener('click', () => {
@@ -4272,7 +4158,7 @@
         sfx.init();
         const btn = document.getElementById('btn-login');
         btn.disabled = true;
-        setLoginStatus('계정 정보를 확인하는 중...');
+        setLoginStatus('로그인 중...');
         const idVal = document.getElementById('login-id').value;
         const pwVal = document.getElementById('login-pw').value;
         const res = await AccountDB.login(idVal, pwVal);
@@ -4306,7 +4192,6 @@
         }
       });
 
-      // Waiting Room Controls
       document.getElementById('btn-wr-reconnect').addEventListener('click', () => {
         ensurePeerSignalingAlive(true);
         requestScreenWakeLock();
@@ -4319,13 +4204,9 @@
         }
       });
 
-      document.getElementById('btn-copy-code').addEventListener('click', () => {
-        copyTextToClipboard(net.roomCode, `방 코드 [${net.roomCode}] 복사 완료!`);
-      });
-
       document.getElementById('btn-copy-link').addEventListener('click', () => {
         const link = `${OFFICIAL_APP_URL}?room=${net.roomCode}`;
-        copyTextToClipboard(link, '초대 링크를 복사했습니다! 카톡 등에 붙여넣어 공유하세요.');
+        copyTextToClipboard(link, '초대 링크를 복사했습니다!');
       });
 
       document.querySelectorAll('.wr-max-btn').forEach(btn => {
@@ -4360,7 +4241,7 @@
       document.querySelectorAll('.wr-step-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           if (net.role !== 'host') return;
-          net.room.baseStep = Number(btn.dataset.wrStep) || 500;
+          net.room.baseStep = Number(btn.dataset.wrStep) || 1000;
           sfx.select();
           broadcastRoomState();
         });
@@ -4378,7 +4259,7 @@
       document.querySelectorAll('.wr-ty-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           if (net.role !== 'host') return;
-          net.room.thankYouMode = btn.dataset.wrTy === 'own' ? 'own' : 'all';
+          net.room.thankYouMode = btn.dataset.wrTy === 'all' ? 'all' : 'own';
           sfx.select();
           broadcastRoomState();
         });
@@ -4424,9 +4305,6 @@
         document.getElementById('ingame-chat-modal').classList.add('hidden');
       });
 
-
-
-      // Game Table Actions (dispatch to Host if Guest, or execute directly if Host/Offline)
       document.getElementById('draw-deck-slot').addEventListener('click', () => {
         if (state.phase === 'draw' && state.currentPlayerIdx === state.viewingPlayerIdx) {
           if (net.mode === 'online' && net.role === 'guest') {
@@ -4572,10 +4450,10 @@
           for (const c of viewer.hand) {
             if (state.mustUseCardId && c.id !== state.mustUseCardId) continue;
             const matches = findAttachableMelds([c]);
-          if (matches.length > 0) {
-            state.selectedCardIds.clear();
-            state.hintCardIds.add(c.id);
-            state.selectedCardIds.add(c.id);
+            if (matches.length > 0) {
+              state.selectedCardIds.clear();
+              state.hintCardIds.add(c.id);
+              state.selectedCardIds.add(c.id);
               showToast('💡 테이블 등록 패에 붙일 수 있는 카드를 찾았습니다!', 'success');
               sfx.select();
               renderGame();
@@ -4583,7 +4461,7 @@
             }
           }
         }
-        showToast('현재 바로 등록하거나 붙일 수 있는 조합이 없습니다. 불필요한 카드를 버려보세요.', 'info');
+        showToast('바로 등록하거나 붙일 수 있는 조합이 없습니다.', 'info');
       });
 
       document.getElementById('btn-reveal-hand').addEventListener('click', () => {
@@ -4635,7 +4513,6 @@
         });
       });
 
-      /* ==================== IN-GAME FULLSCREEN TOGGLE ==================== */
       function updateFullscreenBtnUI() {
         const btn = document.getElementById('btn-game-fullscreen');
         if (!btn) return;
@@ -4654,7 +4531,7 @@
           } else {
             if (el.requestFullscreen) el.requestFullscreen();
             else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-            else showToast('이 브라우저에서는 전체화면 전환을 지원하지 않습니다.', 'info');
+            else showToast('전체화면 전환을 지원하지 않습니다.', 'info');
           }
         } catch (_) {
           showToast('전체화면 전환을 실행할 수 없습니다.', 'info');
@@ -4664,7 +4541,6 @@
       document.addEventListener('fullscreenchange', updateFullscreenBtnUI);
       document.addEventListener('webkitfullscreenchange', updateFullscreenBtnUI);
 
-      // Auto-fill room code from URL query (?room=1234)
       function checkUrlRoomParam() {
         try {
           const params = new URLSearchParams(window.location.search);
@@ -4672,7 +4548,7 @@
           if (roomParam && /^\d{4}$/.test(roomParam)) {
             config.lobbyTab = 'online';
             document.getElementById('input-room-code').value = roomParam;
-            showToast(`초대 링크로 방 #${roomParam} 코드가 준비되었습니다. 로그인 후 입장해주세요!`, 'info');
+            showToast(`방 #${roomParam} 코드 입력됨`, 'info');
           }
         } catch (_) {}
       }
