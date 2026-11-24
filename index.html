@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>훌라 5 — 최대 5인 온라인 대기실 &amp; 훌라 카드게임</title>
   <meta name="theme-color" content="#071910" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -56,12 +56,43 @@
         inset 0 0 0 3px rgba(245, 158, 11, 0.22);
     }
 
+    /* Mobile Game 1-Screen Lock (no vertical scroll on phone, PC untouched) */
+    @media (max-width: 639px) {
+      body.in-game-mobile {
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+      }
+      body.in-game-mobile #header-status {
+        display: none;
+      }
+      body.in-game-mobile header {
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+      body.in-game-mobile main {
+        min-height: 0;
+        overflow: hidden;
+      }
+      body.in-game-mobile #game-screen {
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+        padding: 6px;
+        gap: 6px;
+      }
+      .deck-station-card {
+        width: 50px !important;
+        height: 72px !important;
+      }
+    }
+
     /* Playing Card Styling */
     .playing-card {
       position: relative;
-      width: 64px;
-      height: 92px;
-      border-radius: 8px;
+      width: 56px;
+      height: 80px;
+      border-radius: 7px;
       background: linear-gradient(165deg, #ffffff 0%, #f8fafc 75%, #eef2f6 100%);
       border: 1.5px solid #cbd5e1;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
@@ -273,20 +304,20 @@
             신규 ID 발급 시 50,000P 즉시 지급
           </span>
           <h2 class="text-2xl font-black text-white tracking-tight">훌라 5 로그인</h2>
-          <p class="text-xs text-slate-300 mt-1">발급받은 ID와 5자리 비밀번호로 로그인하면 보유 포인트가 유지됩니다.</p>
+          <p class="text-xs text-slate-300 mt-1">원하는 ID와 비밀번호를 입력해 바로 로그인하거나, ID 발급받기로 간편 생성하세요.</p>
         </div>
 
         <form id="login-form" class="mt-5 space-y-3.5">
           <div>
             <label for="login-id" class="block text-xs font-bold text-amber-300 mb-1.5">ID</label>
-            <input id="login-id" type="text" maxlength="12" autocomplete="username" placeholder="ID 입력 (발급 시 원하는 ID 또는 비워두기)"
+            <input id="login-id" type="text" maxlength="12" autocomplete="username" placeholder="ID 입력 (예: A1234 또는 원하는 ID)"
               class="w-full bg-slate-900/95 border border-white/15 focus:border-amber-400 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white outline-none transition" />
           </div>
 
           <div>
             <label for="login-pw" class="block text-xs font-bold text-amber-300 mb-1.5">비밀번호</label>
             <div class="relative">
-              <input id="login-pw" type="password" maxlength="10" autocomplete="current-password" placeholder="영문+숫자 5자리 비밀번호"
+              <input id="login-pw" type="password" maxlength="10" autocomplete="current-password" placeholder="영문+숫자 4자리 비밀번호"
                 class="w-full bg-slate-900/95 border border-white/15 focus:border-amber-400 rounded-xl pl-3.5 pr-12 py-2.5 text-sm font-mono font-bold tracking-widest text-white outline-none transition" />
               <button id="btn-toggle-pw-vis" type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition" title="비밀번호 보기/숨기기">
                 👁
@@ -318,7 +349,7 @@
               <div id="issued-id-val" class="text-base font-black text-white tracking-wide mt-0.5">-</div>
             </div>
             <div>
-              <div class="text-[10px] font-bold text-slate-400">비밀번호 (5자리)</div>
+              <div class="text-[10px] font-bold text-slate-400">비밀번호 (4자리)</div>
               <div id="issued-pw-val" class="text-base font-mono font-black text-amber-300 tracking-widest mt-0.5">-</div>
             </div>
           </div>
@@ -516,6 +547,20 @@
                     <button type="button" data-wr-step="2000" class="wr-step-btn py-1 rounded font-bold border">2천</button>
                   </div>
                 </div>
+                <div>
+                  <span class="block text-[10px] text-slate-400 mb-1">스톱 가능 점수 (2바퀴째부터)</span>
+                  <div id="wr-stop-btns" class="grid grid-cols-2 gap-1">
+                    <button type="button" data-wr-stop="10" class="wr-stop-btn py-1 rounded font-bold border">10점 이하</button>
+                    <button type="button" data-wr-stop="15" class="wr-stop-btn py-1 rounded font-bold border">15점 이하</button>
+                  </div>
+                </div>
+                <div>
+                  <span class="block text-[10px] text-slate-400 mb-1">땡큐 (버림 패 줍기)</span>
+                  <div id="wr-ty-btns" class="grid grid-cols-2 gap-1">
+                    <button type="button" data-wr-ty="true" class="wr-ty-btn py-1 rounded font-bold border">허용</button>
+                    <button type="button" data-wr-ty="false" class="wr-ty-btn py-1 rounded font-bold border">끄기</button>
+                  </div>
+                </div>
               </div>
               <p id="wr-step-preview" class="text-[11px] text-amber-200/85 mt-2 font-medium"></p>
             </div>
@@ -565,54 +610,54 @@
       <div id="opponents-area" class="grid gap-2 w-full"></div>
 
       <!-- Center Arena: Deck/Discard + Table Melds -->
-      <div class="flex-1 flex flex-col lg:flex-row gap-2.5 sm:gap-3 min-h-[210px]">
+      <div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-1.5 sm:gap-3 sm:min-h-[210px]">
         <!-- Deck & Discard Station -->
-        <div class="bg-black/30 border border-white/10 rounded-2xl p-3 flex flex-row lg:flex-col items-center justify-center gap-4 sm:gap-5 shrink-0 lg:w-52">
+        <div class="bg-black/30 border border-white/10 rounded-xl sm:rounded-2xl py-1.5 px-3 sm:p-3 flex flex-row lg:flex-col items-center justify-center gap-6 sm:gap-5 shrink-0 lg:w-52">
           <!-- Draw Deck -->
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="text-[11px] font-bold text-emerald-200/90 flex items-center gap-1">
+          <div class="flex flex-col items-center gap-0.5 sm:gap-1.5">
+            <div class="text-[10px] sm:text-[11px] font-bold text-emerald-200/90 flex items-center gap-1">
               <span>카드 더미</span>
-              <span id="deck-count" class="px-1.5 py-0.5 rounded bg-emerald-950 text-amber-300 font-mono text-[11px]">0</span>
+              <span id="deck-count" class="px-1.5 py-0.5 rounded bg-emerald-950 text-amber-300 font-mono text-[10px] sm:text-[11px]">0</span>
             </div>
             <div id="draw-deck-slot" class="relative cursor-pointer" title="카드 1장 뽑기">
-              <div class="playing-card card-back flex items-center justify-center">
+              <div class="playing-card deck-station-card card-back flex items-center justify-center">
                 <div class="card-back-inner">
-                  <span class="text-amber-300/90 font-black text-lg tracking-tighter">훌라</span>
+                  <span class="text-amber-300/90 font-black text-sm sm:text-lg tracking-tighter">훌라</span>
                 </div>
               </div>
             </div>
-            <span id="deck-hint-label" class="text-[10px] font-semibold text-amber-300 h-3.5"></span>
+            <span id="deck-hint-label" class="text-[10px] font-semibold text-amber-300 h-3 sm:h-3.5 leading-none"></span>
           </div>
 
           <!-- Discard Pile -->
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="text-[11px] font-bold text-emerald-200/90 flex items-center gap-1">
+          <div class="flex flex-col items-center gap-0.5 sm:gap-1.5">
+            <div class="text-[10px] sm:text-[11px] font-bold text-emerald-200/90 flex items-center gap-1">
               <span>버림 패</span>
-              <span id="discard-count" class="px-1.5 py-0.5 rounded bg-emerald-950 text-slate-300 font-mono text-[11px]">0</span>
+              <span id="discard-count" class="px-1.5 py-0.5 rounded bg-emerald-950 text-slate-300 font-mono text-[10px] sm:text-[11px]">0</span>
             </div>
-            <div id="discard-pile-slot" class="relative min-w-[68px] sm:min-w-[78px] min-h-[98px] sm:min-h-[112px] rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center bg-black/20">
-              <span class="text-[11px] text-white/35 font-semibold">비어 있음</span>
+            <div id="discard-pile-slot" class="relative min-w-[50px] sm:min-w-[78px] min-h-[72px] sm:min-h-[112px] rounded-lg sm:rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center bg-black/20">
+              <span class="text-[10px] sm:text-[11px] text-white/35 font-semibold">비어 있음</span>
             </div>
-            <span id="discard-hint-label" class="text-[10px] font-semibold text-sky-300 h-3.5"></span>
+            <span id="discard-hint-label" class="text-[10px] font-semibold text-sky-300 h-3 sm:h-3.5 leading-none"></span>
           </div>
         </div>
 
         <!-- Registered Melds Area -->
-        <div class="flex-1 bg-black/25 border border-white/10 rounded-2xl p-3 flex flex-col min-h-[170px]">
-          <div class="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-white/10">
+        <div class="flex-1 min-h-0 bg-black/25 border border-white/10 rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col sm:min-h-[170px]">
+          <div class="flex items-center justify-between gap-2 mb-1 sm:mb-2 pb-1 sm:pb-1.5 border-b border-white/10 shrink-0">
             <div class="flex items-center gap-2">
-              <h3 class="text-xs sm:text-sm font-bold text-amber-200">테이블 등록 패</h3>
-              <span id="meld-count-badge" class="text-[11px] px-2 py-0.5 rounded-full bg-white/10 text-emerald-200 font-semibold">0개</span>
+              <h3 class="text-[11px] sm:text-sm font-bold text-amber-200">테이블 등록 패</h3>
+              <span id="meld-count-badge" class="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full bg-white/10 text-emerald-200 font-semibold">0개</span>
             </div>
-            <span id="attach-instruction" class="text-[11px] text-amber-300 font-semibold hidden">
+            <span id="attach-instruction" class="text-[10px] sm:text-[11px] text-amber-300 font-semibold hidden">
               황금색 조합을 클릭해 붙이세요!
             </span>
           </div>
-          <div id="table-melds-area" class="flex-1 flex flex-wrap content-start gap-2.5 overflow-y-auto max-h-[250px] sm:max-h-[290px] pr-1">
-            <div class="w-full h-full min-h-[110px] flex flex-col items-center justify-center text-center text-emerald-200/45 text-xs gap-1">
-              <span class="text-lg">🃏</span>
+          <div id="table-melds-area" class="flex-1 min-h-0 flex flex-wrap content-start gap-2 overflow-y-auto sm:max-h-[290px] pr-1">
+            <div class="w-full h-full min-h-[60px] sm:min-h-[110px] flex flex-col items-center justify-center text-center text-emerald-200/45 text-[11px] sm:text-xs gap-0.5">
+              <span class="text-base sm:text-lg">🃏</span>
               <span>아직 등록된 카드가 없습니다.</span>
-              <span class="text-[11px] text-emerald-200/35">스트레이트(3장+), 트리플(3장+), 또는 7 단독 등록이 가능합니다.</span>
+              <span class="text-[10px] sm:text-[11px] text-emerald-200/35 hidden sm:inline">스트레이트(3장+), 트리플(3장+), 또는 7 단독 등록이 가능합니다.</span>
             </div>
           </div>
         </div>
@@ -635,54 +680,54 @@
       </div>
 
       <!-- Active Player Dock -->
-      <div class="bg-slate-950/75 backdrop-blur-md border border-amber-500/25 rounded-2xl p-3 sm:p-4 shadow-2xl">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span id="active-player-name" class="text-sm sm:text-base font-black text-white">나</span>
-            <span id="turn-phase-pill" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+      <div class="bg-slate-950/75 backdrop-blur-md border border-amber-500/25 rounded-xl sm:rounded-2xl p-2 sm:p-4 shadow-2xl shrink-0">
+        <div class="flex flex-wrap items-center justify-between gap-1 sm:gap-2 mb-1.5 sm:mb-3">
+          <div class="flex items-center gap-1 sm:gap-2 flex-wrap">
+            <span id="active-player-name" class="text-xs sm:text-base font-black text-white">나</span>
+            <span id="turn-phase-pill" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
               대기 중
             </span>
-            <span id="hand-points-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-emerald-200">
+            <span id="hand-points-badge" class="px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-white/10 text-emerald-200">
               손패 0점
             </span>
-            <span id="hoola-eligible-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-fuchsia-500/20 text-fuchsia-200 border border-fuchsia-400/30">
+            <span id="hoola-eligible-badge" class="px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-fuchsia-500/20 text-fuchsia-200 border border-fuchsia-400/30">
               훌라 가능
             </span>
           </div>
 
-          <div class="flex items-center gap-1.5">
-            <button id="btn-sort-rank" type="button" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] font-semibold text-slate-200 transition">
+          <div class="flex items-center gap-1 sm:gap-1.5">
+            <button id="btn-sort-rank" type="button" class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[10px] sm:text-[11px] font-semibold text-slate-200 transition">
               숫자순
             </button>
-            <button id="btn-sort-suit" type="button" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] font-semibold text-slate-200 transition">
+            <button id="btn-sort-suit" type="button" class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[10px] sm:text-[11px] font-semibold text-slate-200 transition">
               무늬순
             </button>
-            <button id="btn-hint" type="button" class="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-[11px] font-bold text-sky-200 transition">
+            <button id="btn-hint" type="button" class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-[10px] sm:text-[11px] font-bold text-sky-200 transition">
               💡 힌트
             </button>
           </div>
         </div>
 
-        <div id="player-hand-area" class="flex flex-wrap items-end justify-center gap-x-1.5 gap-y-2.5 sm:gap-2 overflow-visible pt-3 sm:pt-5 pb-2 px-0.5 min-h-[112px] sm:min-h-[140px]"></div>
+        <div id="player-hand-area" class="flex flex-wrap items-end justify-center gap-x-1 gap-y-1.5 sm:gap-2 overflow-visible pt-1.5 sm:pt-5 pb-1 sm:pb-2 px-0.5 min-h-[86px] sm:min-h-[140px]"></div>
 
-        <div class="mt-2 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
-          <div id="selection-feedback" class="text-xs text-emerald-200/90 font-medium min-h-[18px]">
+        <div class="mt-1 sm:mt-2 pt-1.5 sm:pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
+          <div id="selection-feedback" class="text-[11px] sm:text-xs text-emerald-200/90 font-medium truncate">
             카드를 클릭해 선택하세요.
           </div>
-          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <button id="btn-clear-sel" type="button" disabled class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 disabled:opacity-35 disabled:cursor-not-allowed text-xs font-bold text-slate-200 transition">
-              선택 해제
+          <div class="grid grid-cols-5 gap-1 w-full sm:w-auto sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+            <button id="btn-clear-sel" type="button" disabled class="px-1 sm:px-3 py-2 rounded-lg sm:rounded-xl bg-white/10 hover:bg-white/15 disabled:opacity-35 disabled:cursor-not-allowed text-[11px] sm:text-xs font-bold text-slate-200 transition whitespace-nowrap text-center">
+              선택해제
             </button>
-            <button id="btn-meld" type="button" disabled class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-35 disabled:cursor-not-allowed text-slate-950 text-xs sm:text-sm font-black transition shadow">
+            <button id="btn-meld" type="button" disabled class="px-1 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-35 disabled:cursor-not-allowed text-slate-950 text-[11px] sm:text-sm font-black transition shadow whitespace-nowrap text-center">
               등록하기
             </button>
-            <button id="btn-attach" type="button" disabled class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-35 disabled:cursor-not-allowed text-slate-950 text-xs sm:text-sm font-black transition shadow">
+            <button id="btn-attach" type="button" disabled class="px-1 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-35 disabled:cursor-not-allowed text-slate-950 text-[11px] sm:text-sm font-black transition shadow whitespace-nowrap text-center">
               붙이기
             </button>
-            <button id="btn-discard" type="button" disabled class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-35 disabled:cursor-not-allowed text-slate-950 text-xs sm:text-sm font-black transition shadow">
+            <button id="btn-discard" type="button" disabled class="px-1 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-35 disabled:cursor-not-allowed text-slate-950 text-[11px] sm:text-sm font-black transition shadow whitespace-nowrap text-center">
               버리기
             </button>
-            <button id="btn-stop" type="button" disabled class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-35 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-black transition shadow">
+            <button id="btn-stop" type="button" disabled class="px-1 sm:px-3.5 py-2 rounded-lg sm:rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-35 disabled:cursor-not-allowed text-white text-[11px] sm:text-sm font-black transition shadow whitespace-nowrap text-center">
               스톱!
             </button>
           </div>
@@ -794,7 +839,7 @@
           <ul class="list-disc pl-4 space-y-1 text-slate-300">
             <li><strong>훌라 (2배):</strong> 이전 턴에 한 번도 등록·붙이기를 하지 않고, <strong>단 한 번의 턴에</strong> 8장을 모두 등록하거나 7장을 등록하고 마지막 1장을 버려 손패를 비우면 훌라 승리!</li>
             <li><strong>땡큐 (Thank You):</strong> 상대가 버린 카드로 즉시 등록 또는 붙이기가 가능하면 <strong>땡큐</strong>를 외쳐 그 카드를 가져올 수 있습니다.</li>
-            <li><strong>스톱 (STOP):</strong> 1회 이상 등록했거나 손패 합이 10점 이하일 때 스톱 선언 가능. 최저점이면 승리, 더 낮은(또는 동점) 상대가 있으면 <strong>독박</strong> 패배!</li>
+            <li><strong>스톱 (STOP):</strong> 첫 1바퀴가 지난 뒤(2바퀴째부터) 남은 손패 합이 대기실 설정 기준(<strong>10점 이하</strong> 또는 <strong>15점 이하</strong>)일 때 선언 가능. 최저점이면 승리, 더 낮은(또는 동점) 상대가 있으면 <strong>독박</strong> 패배!</li>
           </ul>
         </div>
         <div class="bg-white/5 border border-white/10 rounded-xl p-3">
@@ -915,12 +960,11 @@
         } catch (_) {}
       }
 
-      function generatePassword5() {
+      function generatePassword4() {
         const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
         const digits = '23456789';
-        // Mix of 3 letters + 2 digits (always contains both letters & numbers, length 5)
+        // 영문 2자리 + 숫자 2자리 섞어서 총 4자리
         const chars = [
-          letters[Math.floor(Math.random() * letters.length)],
           letters[Math.floor(Math.random() * letters.length)],
           letters[Math.floor(Math.random() * letters.length)],
           digits[Math.floor(Math.random() * digits.length)],
@@ -934,11 +978,15 @@
       }
 
       function generateAutoId(db) {
-        for (let tries = 0; tries < 50; tries++) {
-          const candidate = `HOOLA${Math.floor(1000 + Math.random() * 9000)}`;
+        const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        for (let tries = 0; tries < 60; tries++) {
+          const ch = letters[Math.floor(Math.random() * letters.length)];
+          const num = String(Math.floor(1000 + Math.random() * 9000));
+          const candidate = `${ch}${num}`;
           if (!db[candidate]) return candidate;
         }
-        return `HOOLA${Date.now().toString().slice(-4)}`;
+        const ch = letters[Math.floor(Math.random() * letters.length)];
+        return `${ch}${Date.now().toString().slice(-4)}`;
       }
 
       function wsAuthRequest(payload, timeoutMs = 6000) {
@@ -963,7 +1011,7 @@
               try {
                 ws.send(JSON.stringify({
                   ...payload,
-                  pageUrl: window.location.href,
+                  pageUrl: window.location.protocol === 'https:' ? window.location.href : OFFICIAL_APP_URL,
                   token: auth.sessionToken || undefined
                 }));
               } catch (_) { finish(null); }
@@ -1000,7 +1048,7 @@
             id = generateAutoId(db);
           }
 
-          const password = generatePassword5();
+          const password = generatePassword4();
 
           // Try server DB first if server supports auth messages
           const remote = await wsAuthRequest({
@@ -1057,8 +1105,11 @@
           if (!id || !pw) {
             return { ok: false, error: 'ID와 비밀번호를 모두 입력해주세요.' };
           }
+          if (id.length < 2 || id.length > 12 || /\s/.test(id)) {
+            return { ok: false, error: 'ID는 공백 없이 2~12자 이내로 입력해주세요.' };
+          }
 
-          // Try server DB first
+          // 1) Try server login first
           const remote = await wsAuthRequest({
             t: 'hoola_auth_login',
             id,
@@ -1066,9 +1117,6 @@
           });
 
           const db = loadLocalDB();
-          if (remote && remote.t === 'hoola_auth_err') {
-            return { ok: false, error: remote.reason || 'ID 또는 비밀번호가 올바르지 않습니다.' };
-          }
           if (remote && remote.t === 'hoola_auth_ok' && remote.user) {
             db[remote.user.id] = {
               id: remote.user.id,
@@ -1088,13 +1136,58 @@
             };
           }
 
-          // Local DB lookup
+          // 2) If server says not found (unregistered), auto-register with the entered ID & PW!
+          if (remote && remote.t === 'hoola_auth_err') {
+            const reason = String(remote.reason || '');
+            const looksLikeWrongPw = reason.includes('비밀번호') && !reason.includes('등록되지') && !reason.includes('없');
+            if (looksLikeWrongPw) {
+              return { ok: false, error: reason };
+            }
+            const regRes = await wsAuthRequest({
+              t: 'hoola_auth_register',
+              id,
+              password: pw,
+              points: INITIAL_POINTS
+            });
+            if (regRes && regRes.t === 'hoola_auth_ok' && regRes.user) {
+              db[regRes.user.id] = {
+                id: regRes.user.id,
+                password: pw.toUpperCase(),
+                points: Number(regRes.user.points ?? INITIAL_POINTS),
+                createdAt: Date.now()
+              };
+              saveLocalDB(db);
+              return {
+                ok: true,
+                user: {
+                  id: regRes.user.id,
+                  points: Number(regRes.user.points ?? INITIAL_POINTS),
+                  token: regRes.token || ''
+                },
+                source: 'server'
+              };
+            }
+            return { ok: false, error: (regRes && regRes.reason) || reason || 'ID 또는 비밀번호가 올바르지 않습니다.' };
+          }
+
+          // 3) Local DB fallback: if ID doesn't exist yet, create immediately and log in!
           const acc = db[id];
           if (!acc) {
-            return { ok: false, error: '등록되지 않은 ID입니다. 먼저 [ID 발급받기]로 계정을 생성해주세요.' };
+            db[id] = {
+              id,
+              password: pw.toUpperCase(),
+              points: INITIAL_POINTS,
+              createdAt: Date.now()
+            };
+            saveLocalDB(db);
+            return {
+              ok: true,
+              user: { id, points: INITIAL_POINTS },
+              source: 'local'
+            };
           }
           if (String(acc.password).toUpperCase() !== pw.toUpperCase()) {
-            return { ok: false, error: '비밀번호가 일치하지 않습니다.' };
+            return { ok: false, error: '이미 등록된 ID이며 비밀번호가 일치하지 않습니다.' };
           }
           return {
             ok: true,
@@ -1189,6 +1282,7 @@
         document.getElementById('privacy-modal').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.add('hidden');
+        document.body.classList.remove('in-game-mobile');
         document.getElementById('lobby-screen').classList.add('hidden');
         document.getElementById('round-badge').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
@@ -1253,6 +1347,8 @@
           jokerCount: 0,
           allowWrap: true,
           baseStep: 500,
+          stopLimit: 10,
+          allowThankYou: true,
           status: 'waiting', // 'waiting' | 'playing'
           seats: [] // { peerId, name, avatar, isAI, isHost, ready }
         }
@@ -1607,7 +1703,12 @@
         });
       }
 
+      function getActiveRuleAllowThankYou() {
+        return net.room.allowThankYou !== false;
+      }
+
       function checkThankYouOption(playerHand, discardedCard) {
+        if (!getActiveRuleAllowThankYou()) return null;
         const attachMatches = findAttachableMelds([discardedCard]);
         if (attachMatches.length > 0) {
           return { actionType: 'attach', targetMeldId: attachMatches[0].meld.id, cards: [discardedCard] };
@@ -1666,7 +1767,7 @@
             net.ws.send(JSON.stringify({
               ...obj,
               token: auth.sessionToken || undefined,
-              pageUrl: window.location.href
+              pageUrl: window.location.protocol === 'https:' ? window.location.href : OFFICIAL_APP_URL
             }));
           } catch (_) {}
         }
@@ -1979,11 +2080,7 @@
           showToast('먼저 로그인해주세요.', 'warn');
           return;
         }
-        if (!auth.sessionToken) {
-          setOnlineStatus('서버 로그인 세션이 없습니다. 로그아웃 후 공식 주소(https://krxjp001.github.io/hoola/)에서 다시 로그인해주세요.', true);
-          sfx.error();
-          return;
-        }
+
         profile.nickname = auth.user.id;
 
         cleanupNetwork(false);
@@ -2032,6 +2129,8 @@
                   jokerCount: 0,
                   allowWrap: true,
                   baseStep: 500,
+          stopLimit: 10,
+          allowThankYou: true,
                   status: 'waiting',
                   seats: [{
                     peerId: clientId,
@@ -2123,6 +2222,8 @@
                   jokerCount: 0,
                   allowWrap: true,
                   baseStep: 500,
+          stopLimit: 10,
+          allowThankYou: true,
                   status: 'waiting',
                   seats: [{
                     peerId: clientId,
@@ -2276,11 +2377,7 @@
           showToast('먼저 로그인해주세요.', 'warn');
           return;
         }
-        if (!auth.sessionToken) {
-          setOnlineStatus('서버 로그인 세션이 없습니다. 로그아웃 후 공식 주소(https://krxjp001.github.io/hoola/)에서 다시 로그인해주세요.', true);
-          sfx.error();
-          return;
-        }
+
         profile.nickname = auth.user.id;
 
         cleanupNetwork(false);
@@ -2600,8 +2697,11 @@
             rules: {
               allowWrap: net.room.allowWrap,
               jokerCount: net.room.jokerCount,
-              baseStep: net.room.baseStep || 500
-            }
+              baseStep: net.room.baseStep || 500,
+              stopLimit: net.room.stopLimit || 10,
+              allowThankYou: net.room.allowThankYou !== false
+            },
+            turnCount: state.turnCount
           };
 
           netSendToGuest(pTarget.peerId, {
@@ -2622,6 +2722,9 @@
         net.room.allowWrap = vs.rules.allowWrap;
         net.room.jokerCount = vs.rules.jokerCount;
         net.room.baseStep = vs.rules.baseStep || 500;
+        net.room.stopLimit = vs.rules.stopLimit || 10;
+        net.room.allowThankYou = vs.rules.allowThankYou !== false;
+        if (typeof vs.turnCount === 'number') state.turnCount = vs.turnCount;
 
         state.screen = 'game';
         state.round = vs.round;
@@ -2648,6 +2751,7 @@
         document.getElementById('lobby-screen').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.remove('hidden');
+        document.body.classList.add('in-game-mobile');
         document.getElementById('round-badge').classList.remove('hidden');
         document.getElementById('round-badge').textContent = `${state.round} 라운드`;
         document.getElementById('room-code-header-badge').classList.remove('hidden');
@@ -2735,6 +2839,7 @@
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('lobby-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.add('hidden');
+        document.body.classList.remove('in-game-mobile');
         document.getElementById('round-badge').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.remove('hidden');
         document.getElementById('room-code-header-badge').classList.remove('hidden');
@@ -2875,6 +2980,24 @@
             active ? 'bg-amber-400 text-slate-950 border-amber-300' : 'bg-white/5 text-slate-300 border-white/10'
           } ${btn.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white/15'}`;
         });
+        const curStop = Number(net.room.stopLimit) || 10;
+        document.querySelectorAll('.wr-stop-btn').forEach(btn => {
+          const v = Number(btn.dataset.wrStop);
+          const active = v === curStop;
+          btn.disabled = !isHost;
+          btn.className = `wr-stop-btn py-1 rounded font-bold border transition ${
+            active ? 'bg-rose-500 text-white border-rose-400' : 'bg-white/5 text-slate-300 border-white/10'
+          } ${btn.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white/15'}`;
+        });
+        const curTY = net.room.allowThankYou !== false;
+        document.querySelectorAll('.wr-ty-btn').forEach(btn => {
+          const v = btn.dataset.wrTy === 'true';
+          const active = v === curTY;
+          btn.disabled = !isHost;
+          btn.className = `wr-ty-btn py-1 rounded font-bold border transition ${
+            active ? 'bg-sky-400 text-slate-950 border-sky-300' : 'bg-white/5 text-slate-300 border-white/10'
+          } ${btn.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white/15'}`;
+        });
         const previewEl = document.getElementById('wr-step-preview');
         if (previewEl) {
           const parts = [];
@@ -2927,6 +3050,7 @@
         document.getElementById('privacy-modal').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.add('hidden');
+        document.body.classList.remove('in-game-mobile');
         document.getElementById('round-badge').classList.add('hidden');
         if (!auth.user) {
           state.screen = 'login';
@@ -2964,6 +3088,7 @@
         document.getElementById('lobby-screen').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.remove('hidden');
+        document.body.classList.add('in-game-mobile');
         document.getElementById('round-badge').classList.remove('hidden');
         startRound();
       }
@@ -2993,6 +3118,7 @@
         document.getElementById('lobby-screen').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.remove('hidden');
+        document.body.classList.add('in-game-mobile');
         document.getElementById('round-badge').classList.remove('hidden');
         document.getElementById('btn-chat-toggle').classList.remove('hidden');
         document.getElementById('btn-game-fullscreen').classList.remove('hidden');
@@ -3327,11 +3453,16 @@
         broadcastGameState('', 'info', 'discard');
       }
 
+      function getActiveStopLimit() {
+        return Number(net.room.stopLimit) || 10;
+      }
+
       function canPlayerStop(player) {
         if (state.phase !== 'action') return false;
         if (state.mustUseCardId) return false;
+        if (state.turnCount <= state.players.length) return false;
         const pts = handPoints(player.hand);
-        return player.hasMeldedBeforeThisTurn || player.meldedThisTurn || pts <= 10;
+        return pts <= getActiveStopLimit();
       }
 
       const RANK_BASE_STEP = 500; // 2등 -500P, 3등 -1,000P, 4등 -1,500P, 5등 -2,000P
@@ -3399,7 +3530,7 @@
         const caller = state.players[playerIdx];
         if (!canPlayerStop(caller)) {
           if (playerIdx === state.viewingPlayerIdx) {
-            showToast('1회 이상 등록했거나 손패 합계가 10점 이하일 때 스톱할 수 있습니다.', 'warn');
+            showToast(`첫 1바퀴 이후 손패 합계가 ${getActiveStopLimit()}점 이하일 때만 스톱할 수 있습니다.`, 'warn');
             sfx.error();
           }
           return;
@@ -3739,7 +3870,7 @@
             `<div class="w-3.5 h-5 rounded-[3px] bg-gradient-to-br from-red-800 to-red-950 border border-amber-200/60 shadow-sm ${i > 0 ? '-ml-1.5' : ''}"></div>`
           ).join('');
           return `
-            <div class="seat-card rounded-xl px-2.5 py-2 flex flex-col gap-1 ${active ? 'active-turn' : ''}">
+            <div class="seat-card rounded-lg sm:rounded-xl px-2 py-1 sm:px-2.5 sm:py-2 flex flex-col gap-0.5 sm:gap-1 ${active ? 'active-turn' : ''}">
               <div class="flex items-center justify-between gap-1.5">
                 <div class="flex items-center gap-1.5 min-w-0">
                   <span class="text-base shrink-0">${escapeHTML(p.avatar)}</span>
@@ -3784,7 +3915,7 @@
 
         if (state.discardPile.length > 0) {
           const top = state.discardPile[state.discardPile.length - 1];
-          discardSlot.innerHTML = renderCardHTML(top, { clickable: canPickupDiscard, hint: canPickupDiscard });
+          discardSlot.innerHTML = renderCardHTML(top, { clickable: canPickupDiscard, hint: canPickupDiscard }).replace('playing-card', 'playing-card deck-station-card');
           document.getElementById('discard-hint-label').textContent = canPickupDiscard ? '클릭: 땡큐 줍기!' : '';
         } else {
           discardSlot.innerHTML = `<span class="text-[11px] text-white/35 font-semibold">비어 있음</span>`;
@@ -3804,7 +3935,7 @@
 
         if (state.tableMelds.length === 0) {
           meldsArea.innerHTML = `
-            <div class="w-full h-full min-h-[110px] flex flex-col items-center justify-center text-center text-emerald-200/45 text-xs gap-1">
+            <div class="w-full h-full min-h-[56px] sm:min-h-[110px] flex flex-col items-center justify-center text-center text-emerald-200/45 text-[11px] sm:text-xs gap-0.5">
               <span class="text-lg">🃏</span>
               <span>아직 등록된 카드가 없습니다.</span>
               <span class="text-[11px] text-emerald-200/35">스트레이트(3장+), 트리플(3장+), 또는 7 단독 등록이 가능합니다.</span>
@@ -4186,6 +4317,24 @@
         btn.addEventListener('click', () => {
           if (net.role !== 'host') return;
           net.room.baseStep = Number(btn.dataset.wrStep) || 500;
+          sfx.select();
+          broadcastRoomState();
+        });
+      });
+
+      document.querySelectorAll('.wr-stop-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (net.role !== 'host') return;
+          net.room.stopLimit = Number(btn.dataset.wrStop) || 10;
+          sfx.select();
+          broadcastRoomState();
+        });
+      });
+
+      document.querySelectorAll('.wr-ty-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (net.role !== 'host') return;
+          net.room.allowThankYou = btn.dataset.wrTy === 'true';
           sfx.select();
           broadcastRoomState();
         });
