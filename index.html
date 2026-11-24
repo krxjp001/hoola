@@ -555,10 +555,10 @@
                   </div>
                 </div>
                 <div>
-                  <span class="block text-[10px] text-slate-400 mb-1">땡큐 (버림 패 줍기)</span>
+                  <span class="block text-[10px] text-slate-400 mb-1">땡큐 방식</span>
                   <div id="wr-ty-btns" class="grid grid-cols-2 gap-1">
-                    <button type="button" data-wr-ty="true" class="wr-ty-btn py-1 rounded font-bold border">허용</button>
-                    <button type="button" data-wr-ty="false" class="wr-ty-btn py-1 rounded font-bold border">끄기</button>
+                    <button type="button" data-wr-ty="all" class="wr-ty-btn py-1 rounded font-bold border">아무 턴 (전투)</button>
+                    <button type="button" data-wr-ty="own" class="wr-ty-btn py-1 rounded font-bold border">내 턴만 (정통)</button>
                   </div>
                 </div>
               </div>
@@ -838,7 +838,7 @@
           <h4 class="font-bold text-amber-300 mb-1">3. 훌라 (원턴 승리) &amp; 스톱 &amp; 땡큐</h4>
           <ul class="list-disc pl-4 space-y-1 text-slate-300">
             <li><strong>훌라 (2배):</strong> 이전 턴에 한 번도 등록·붙이기를 하지 않고, <strong>단 한 번의 턴에</strong> 8장을 모두 등록하거나 7장을 등록하고 마지막 1장을 버려 손패를 비우면 훌라 승리!</li>
-            <li><strong>땡큐 (Thank You):</strong> 상대가 버린 카드로 즉시 등록 또는 붙이기가 가능하면 <strong>땡큐</strong>를 외쳐 그 카드를 가져올 수 있습니다.</li>
+            <li><strong>땡큐 (Thank You):</strong> <strong>아무 턴(전투)</strong> 설정 시 다른 유저 차례에도 버림 패를 땡큐해 턴을 가져올 수 있으며, <strong>내 턴만(정통)</strong> 설정 시 내 차례가 왔을 때 앞사람이 버린 카드만 땡큐로 주울 수 있습니다.</li>
             <li><strong>스톱 (STOP):</strong> 1회 이상 등록을 마치고 첫 1바퀴가 지난 뒤(2바퀴째부터), 내 차례 <strong>카드를 뽑기 전(또는 뽑고 등록 후)</strong> 남은 손패 합이 기준(<strong>10점 이하</strong> 또는 <strong>15점 이하</strong>)일 때 선언 가능. 최저점이면 승리, 더 낮은(또는 동점) 상대가 있으면 <strong>독박</strong> 패배!</li>
           </ul>
         </div>
@@ -1348,7 +1348,7 @@
           allowWrap: true,
           baseStep: 500,
           stopLimit: 10,
-          allowThankYou: true,
+          thankYouMode: 'all',
           status: 'waiting', // 'waiting' | 'playing'
           seats: [] // { peerId, name, avatar, isAI, isHost, ready }
         }
@@ -1703,12 +1703,11 @@
         });
       }
 
-      function getActiveRuleAllowThankYou() {
-        return net.room.allowThankYou !== false;
+      function getActiveThankYouMode() {
+        return net.room.thankYouMode === 'own' ? 'own' : 'all';
       }
 
       function checkThankYouOption(playerHand, discardedCard, canAttach = false) {
-        if (!getActiveRuleAllowThankYou()) return null;
         if (canAttach) {
           const attachMatches = findAttachableMelds([discardedCard]);
           if (attachMatches.length > 0) {
@@ -2132,7 +2131,7 @@
                   allowWrap: true,
                   baseStep: 500,
           stopLimit: 10,
-          allowThankYou: true,
+          thankYouMode: 'all',
                   status: 'waiting',
                   seats: [{
                     peerId: clientId,
@@ -2225,7 +2224,7 @@
                   allowWrap: true,
                   baseStep: 500,
           stopLimit: 10,
-          allowThankYou: true,
+          thankYouMode: 'all',
                   status: 'waiting',
                   seats: [{
                     peerId: clientId,
@@ -2701,7 +2700,7 @@
               jokerCount: net.room.jokerCount,
               baseStep: net.room.baseStep || 500,
               stopLimit: net.room.stopLimit || 10,
-              allowThankYou: net.room.allowThankYou !== false
+              thankYouMode: net.room.thankYouMode || 'all'
             },
             turnCount: state.turnCount
           };
@@ -2725,7 +2724,7 @@
         net.room.jokerCount = vs.rules.jokerCount;
         net.room.baseStep = vs.rules.baseStep || 500;
         net.room.stopLimit = vs.rules.stopLimit || 10;
-        net.room.allowThankYou = vs.rules.allowThankYou !== false;
+        net.room.thankYouMode = vs.rules.thankYouMode || 'all';
         if (typeof vs.turnCount === 'number') state.turnCount = vs.turnCount;
 
         state.screen = 'game';
@@ -2991,9 +2990,9 @@
             active ? 'bg-rose-500 text-white border-rose-400' : 'bg-white/5 text-slate-300 border-white/10'
           } ${btn.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-white/15'}`;
         });
-        const curTY = net.room.allowThankYou !== false;
+        const curTY = getActiveThankYouMode();
         document.querySelectorAll('.wr-ty-btn').forEach(btn => {
-          const v = btn.dataset.wrTy === 'true';
+          const v = btn.dataset.wrTy;
           const active = v === curTY;
           btn.disabled = !isHost;
           btn.className = `wr-ty-btn py-1 rounded font-bold border transition ${
@@ -3430,6 +3429,8 @@
       }
 
       function findHumanThankYouCandidates(discarderIdx, discardedCard) {
+        // 'own'(정통 훌라) 모드에서는 다른 사람 턴 끼어들기 땡큐 금지 (내 차례 draw 단계에서만 버림 패 줍기 가능)
+        if (getActiveThankYouMode() === 'own') return [];
         // Offline multi-human: skip out-of-turn prompt to avoid leaking hands
         if (net.mode === 'offline' && countOfflineHumanPlayers() > 1) return [];
         const list = [];
@@ -4360,7 +4361,7 @@
       document.querySelectorAll('.wr-ty-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           if (net.role !== 'host') return;
-          net.room.allowThankYou = btn.dataset.wrTy === 'true';
+          net.room.thankYouMode = btn.dataset.wrTy === 'own' ? 'own' : 'all';
           sfx.select();
           broadcastRoomState();
         });
