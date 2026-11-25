@@ -491,6 +491,22 @@
           <div id="online-connect-status" class="hidden text-center text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-400/30 rounded-xl py-2 px-3">
             연결 중...
           </div>
+
+          <!-- Active Waiting Rooms List -->
+          <div class="bg-black/35 border border-white/10 rounded-2xl p-3 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-black text-emerald-200">🚪 열린 대기실</span>
+                <span id="lobby-rooms-count" class="px-1.5 py-0.5 rounded-full bg-white/10 text-[10px] font-bold text-amber-200">0개</span>
+              </div>
+              <button id="btn-refresh-rooms" type="button" class="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-[11px] font-bold text-slate-200 transition">
+                🔄 새로고침
+              </button>
+            </div>
+            <div id="lobby-rooms-list" class="space-y-1.5 max-h-44 overflow-y-auto pr-0.5">
+              <div class="text-center text-xs text-slate-400 py-4">대기실 목록을 불러오는 중...</div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1402,6 +1418,141 @@
         syncHeaderUI();
       }
 
+      let lobbyRoomsTimer = null;
+      let lobbyRoomsFetching = false;
+
+      function wsLobbyRoomsRequest(timeoutMs = 4500) {
+        return new Promise(resolve => {
+          if (typeof WebSocket === 'undefined' || !auth.sessionToken) {
+            resolve(null);
+            return;
+          }
+          let done = false;
+          let ws = null;
+          const finish = res => {
+            if (done) return;
+            done = true;
+            clearTimeout(timer);
+            try { if (ws) ws.close(); } catch (_) {}
+            resolve(res);
+          };
+          const timer = setTimeout(() => finish(null), timeoutMs);
+          try {
+            ws = new WebSocket(DEFAULT_CUSTOM_WS_URL);
+            ws.onopen = () => {
+              try {
+                ws.send(JSON.stringify({
+                  t: 'hoola_list_rooms',
+                  token: auth.sessionToken,
+                  pageUrl: window.location.href
+                }));
+              } catch (_) { finish(null); }
+            };
+            ws.onmessage = ev => {
+              let msg;
+              try { msg = JSON.parse(ev.data); } catch (_) { return; }
+              if (msg && msg.t === 'hoola_rooms_list') {
+                finish(Array.isArray(msg.rooms) ? msg.rooms : []);
+              } else if (msg && (msg.t === 'hoola_auth_err' || (msg.t === 'hoola_msg' && msg.payload && msg.payload.type === 'REJECT'))) {
+                finish(null);
+              }
+            };
+            ws.onerror = () => finish(null);
+            ws.onclose = () => finish(null);
+          } catch (_) {
+            finish(null);
+          }
+        });
+      }
+
+      function renderLobbyRoomsList(rooms) {
+        const listEl = document.getElementById('lobby-rooms-list');
+        const countEl = document.getElementById('lobby-rooms-count');
+        if (!listEl || !countEl) return;
+
+        if (!Array.isArray(rooms)) {
+          countEl.textContent = '-';
+          listEl.innerHTML = '<div class="text-center text-xs text-slate-400 py-4">대기실 목록을 불러오지 못했습니다. 새로고침을 눌러주세요.</div>';
+          return;
+        }
+
+        countEl.textContent = `${rooms.length}개`;
+        if (rooms.length === 0) {
+          listEl.innerHTML = '<div class="text-center text-xs text-slate-400 py-4">현재 열려 있는 대기실이 없습니다.</div>';
+          return;
+        }
+
+        listEl.innerHTML = rooms.map(r => {
+          const isPlaying = r.status === 'playing';
+          const isFull = !isPlaying && Number(r.playerCount) >= Number(r.maxPlayers);
+          const statusBadge = isPlaying
+            ? '<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-400/35 text-[10px] font-bold shrink-0">게임중</span>'
+            : '<span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-200 border border-emerald-400/35 text-[10px] font-bold shrink-0">대기중</span>';
+          const btnText = isPlaying ? '재접속' : (isFull ? '만원' : '입장');
+          const btnClass = isFull
+            ? 'px-3 py-1.5 rounded-lg bg-slate-700/70 text-slate-400 text-xs font-bold cursor-not-allowed shrink-0'
+            : (isPlaying
+              ? 'px-3 py-1.5 rounded-lg bg-amber-500/25 hover:bg-amber-500/40 border border-amber-400/45 text-amber-200 text-xs font-black transition shrink-0'
+              : 'px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-black transition shadow shrink-0');
+
+          return `
+            <div class="flex items-center justify-between gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-2 transition">
+              <div class="flex items-center gap-2 min-w-0 flex-wrap">
+                <span class="font-mono text-xs sm:text-sm font-black text-sky-300 bg-sky-950/90 border border-sky-400/35 px-2 py-0.5 rounded-lg shrink-0">#${escapeHTML(r.code)}</span>
+                <span class="text-xs sm:text-sm font-bold text-white truncate">👑 ${escapeHTML(r.hostId || '방장')}</span>
+                <span class="text-[11px] font-bold text-slate-300 shrink-0">${Number(r.playerCount) || 1}/${Number(r.maxPlayers) || 3}명</span>
+                ${statusBadge}
+              </div>
+              <button type="button" data-lobby-join-code="${escapeHTML(r.code)}" ${isFull ? 'disabled' : ''} class="${btnClass}">
+                ${btnText}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        listEl.querySelectorAll('[data-lobby-join-code]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const code = btn.dataset.lobbyJoinCode;
+            if (!code) return;
+            sfx.init();
+            document.getElementById('input-room-code').value = code;
+            joinOnlineRoom(code);
+          });
+        });
+      }
+
+      async function fetchLobbyRooms(showLoading = false) {
+        if (lobbyRoomsFetching || state.screen !== 'lobby' || !auth.user) return;
+        lobbyRoomsFetching = true;
+        const listEl = document.getElementById('lobby-rooms-list');
+        if (showLoading && listEl) {
+          listEl.innerHTML = '<div class="text-center text-xs text-slate-400 py-4">대기실 목록을 불러오는 중...</div>';
+        }
+        const rooms = await wsLobbyRoomsRequest();
+        lobbyRoomsFetching = false;
+        if (state.screen === 'lobby' && auth.user) {
+          renderLobbyRoomsList(rooms);
+        }
+      }
+
+      function startLobbyRoomsPolling() {
+        stopLobbyRoomsPolling();
+        if (state.screen !== 'lobby' || !auth.user) return;
+        fetchLobbyRooms(true);
+        lobbyRoomsTimer = setInterval(() => {
+          if (state.screen === 'lobby' && auth.user && document.visibilityState === 'visible') {
+            fetchLobbyRooms(false);
+          }
+        }, 5000);
+      }
+
+      function stopLobbyRoomsPolling() {
+        if (lobbyRoomsTimer) {
+          clearInterval(lobbyRoomsTimer);
+          lobbyRoomsTimer = null;
+        }
+      }
+
       function completeLogin(user) {
         auth.user = { id: user.id, points: Number(user.points ?? INITIAL_POINTS) };
         auth.sessionToken = user.token || '';
@@ -1413,11 +1564,13 @@
         document.getElementById('lobby-screen').classList.remove('hidden');
         state.screen = 'lobby';
         syncHeaderUI();
+        startLobbyRoomsPolling();
         sfx.meld();
         showToast(`${auth.user.id}님 환영합니다! 보유 ${auth.user.points.toLocaleString('ko-KR')}P`, 'success');
       }
 
       function logoutUser() {
+        stopLobbyRoomsPolling();
         cleanupNetwork();
         auth.user = null;
         auth.sessionToken = '';
@@ -2907,6 +3060,7 @@
 
         const wasMyDrawPhase = (state.phase === 'draw' && state.currentPlayerIdx === vs.myPlayerIdx);
 
+        stopLobbyRoomsPolling();
         state.screen = 'game';
         state.round = vs.round;
         state.viewingPlayerIdx = vs.myPlayerIdx;
@@ -3018,6 +3172,7 @@
 
       /* ==================== WAITING ROOM UI ==================== */
       function openWaitingRoomScreen() {
+        stopLobbyRoomsPolling();
         state.screen = 'waiting';
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('lobby-screen').classList.add('hidden');
@@ -3234,6 +3389,7 @@
           state.screen = 'lobby';
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('lobby-screen').classList.remove('hidden');
+          startLobbyRoomsPolling();
         }
         renderLobby();
       }
@@ -3263,6 +3419,7 @@
           lastAction: ''
         }));
 
+        stopLobbyRoomsPolling();
         state.screen = 'game';
         const hostIdx = state.players.findIndex(p => p.peerId === net.myPeerId);
         state.viewingPlayerIdx = hostIdx >= 0 ? hostIdx : 0;
@@ -4400,6 +4557,11 @@
         joinOnlineRoom(document.getElementById('input-room-code').value);
       });
 
+      document.getElementById('btn-refresh-rooms').addEventListener('click', () => {
+        sfx.select();
+        fetchLobbyRooms(true);
+      });
+
       document.getElementById('input-room-code').addEventListener('keydown', e => {
         if (e.key === 'Enter') {
           sfx.init();
@@ -4413,9 +4575,13 @@
       });
 
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && net.mode === 'online') {
-          ensurePeerSignalingAlive(false);
-          if (net.role === 'host') requestScreenWakeLock();
+        if (document.visibilityState === 'visible') {
+          if (net.mode === 'online') {
+            ensurePeerSignalingAlive(false);
+            if (net.role === 'host') requestScreenWakeLock();
+          } else if (state.screen === 'lobby' && auth.user) {
+            fetchLobbyRooms(false);
+          }
         }
       });
 
