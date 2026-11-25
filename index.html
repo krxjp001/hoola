@@ -65,7 +65,7 @@
         overflow: hidden;
       }
       body.in-game-mobile header {
-        padding-top: 5px;
+        padding-top: max(5px, env(safe-area-inset-top));
         padding-bottom: 5px;
       }
       body.in-game-mobile main {
@@ -76,13 +76,62 @@
         height: 100%;
         min-height: 0;
         overflow: hidden;
-        padding: 6px;
+        padding: 6px 6px max(6px, env(safe-area-inset-bottom)) 6px;
         gap: 6px;
       }
       .deck-station-card {
         width: 50px !important;
         height: 72px !important;
       }
+
+      /* iPhone (iOS) 전용 화면 잘림 방지 및 안전 영역 최적화 (안드로이드/PC 영향 없음) */
+      body.is-ios header {
+        padding-top: max(6px, env(safe-area-inset-top));
+        padding-left: max(8px, env(safe-area-inset-left));
+        padding-right: max(8px, env(safe-area-inset-right));
+      }
+      body.is-ios.in-game-mobile #game-screen {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 6px 6px max(10px, env(safe-area-inset-bottom)) 6px;
+        gap: 4px;
+      }
+      body.is-ios.in-game-mobile .deck-station-card {
+        width: 46px !important;
+        height: 66px !important;
+      }
+      body.is-ios.in-game-mobile #player-hand-area {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        padding-top: 12px;
+        padding-bottom: 4px;
+        min-height: 92px;
+      }
+      body.is-ios.in-game-mobile #player-hand-area .playing-card {
+        width: 52px;
+        height: 74px;
+      }
+      body.ios-immersive header {
+        display: none;
+      }
+      body.ios-immersive #game-screen {
+        padding-top: max(6px, env(safe-area-inset-top));
+      }
+    }
+
+    /* iOS 몰입 모드 해제용 우측 상단 미니 버튼 */
+    #btn-ios-exit-immersive {
+      display: none;
+      position: fixed;
+      top: max(8px, env(safe-area-inset-top));
+      right: 8px;
+      z-index: 60;
+    }
+    body.ios-immersive #btn-ios-exit-immersive {
+      display: inline-flex;
     }
 
     /* Playing Card Styling */
@@ -284,6 +333,10 @@
       </button>
     </div>
   </header>
+
+  <button id="btn-ios-exit-immersive" type="button" class="items-center px-2.5 py-1 rounded-lg bg-black/75 border border-emerald-400/50 text-[11px] font-bold text-emerald-200 shadow-lg backdrop-blur-md">
+    ✕ 상단바 보기
+  </button>
 
   <!-- Toast Notification -->
   <div id="toast-container" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-1 w-[92%] max-w-md"></div>
@@ -1358,7 +1411,8 @@
         document.getElementById('rules-modal').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.add('hidden');
-        document.body.classList.remove('in-game-mobile');
+        document.body.classList.remove('in-game-mobile', 'ios-immersive');
+        updateFullscreenBtnUI();
         document.getElementById('lobby-screen').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
         document.getElementById('login-pw').value = '';
@@ -2888,7 +2942,8 @@
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('lobby-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.add('hidden');
-        document.body.classList.remove('in-game-mobile');
+        document.body.classList.remove('in-game-mobile', 'ios-immersive');
+        updateFullscreenBtnUI();
         document.getElementById('waiting-room-screen').classList.remove('hidden');
         syncHeaderUI();
         renderWaitingRoom();
@@ -3089,7 +3144,8 @@
         document.getElementById('privacy-modal').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.add('hidden');
-        document.body.classList.remove('in-game-mobile');
+        document.body.classList.remove('in-game-mobile', 'ios-immersive');
+        updateFullscreenBtnUI();
         if (!auth.user) {
           state.screen = 'login';
           document.getElementById('lobby-screen').classList.add('hidden');
@@ -4606,10 +4662,25 @@
         });
       });
 
+      const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isIOSDevice) {
+        document.body.classList.add('is-ios');
+      }
+
+      function isFullscreenSupported() {
+        const el = document.documentElement;
+        return Boolean(el.requestFullscreen || el.webkitRequestFullscreen);
+      }
+
       function updateFullscreenBtnUI() {
         const btn = document.getElementById('btn-game-fullscreen');
         if (!btn) return;
-        const isFs = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+        const isFs = Boolean(
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.body.classList.contains('ios-immersive')
+        );
         btn.innerHTML = isFs
           ? '<span>✕</span><span class="hidden sm:inline ml-1">축소</span>'
           : '<span>⛶</span><span class="hidden sm:inline ml-1">전체화면</span>';
@@ -4618,19 +4689,35 @@
       document.getElementById('btn-game-fullscreen').addEventListener('click', () => {
         sfx.select();
         const el = document.documentElement;
-        const isFs = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
-        try {
-          if (isFs) {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-          } else {
-            if (el.requestFullscreen) el.requestFullscreen();
-            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-            else showToast('전체화면 전환을 지원하지 않습니다.', 'info');
-          }
-        } catch (_) {
-          showToast('전체화면 전환을 실행할 수 없습니다.', 'info');
+        const isNativeFs = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+
+        // PC / 안드로이드: 기존 표준 전체화면 그대로 사용
+        if (isFullscreenSupported()) {
+          try {
+            if (isNativeFs) {
+              if (document.exitFullscreen) document.exitFullscreen();
+              else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            } else {
+              if (el.requestFullscreen) el.requestFullscreen();
+              else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            }
+            return;
+          } catch (_) {}
         }
+
+        // 아이폰(iOS Safari): 에러 대신 상단바 숨김(몰입 모드)으로 화면 최대화
+        const enabled = document.body.classList.toggle('ios-immersive');
+        updateFullscreenBtnUI();
+        window.scrollTo(0, 1);
+        if (enabled && !window.navigator.standalone) {
+          showToast('화면 최대화됨 (Safari 공유 → 홈 화면에 추가 시 완전 전체화면)', 'info');
+        }
+      });
+
+      document.getElementById('btn-ios-exit-immersive').addEventListener('click', () => {
+        sfx.select();
+        document.body.classList.remove('ios-immersive');
+        updateFullscreenBtnUI();
       });
 
       document.addEventListener('fullscreenchange', updateFullscreenBtnUI);
