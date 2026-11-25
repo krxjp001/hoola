@@ -344,8 +344,20 @@
   <!-- Main Content Area -->
   <main class="flex-1 flex flex-col relative table-rim overflow-hidden">
 
+    <!-- Top Quick Bar (Above Login & Lobby: YouTube + Admin-Only Password Reset) -->
+    <div id="top-utility-bar" class="w-full px-2.5 pt-2.5 pb-0.5 flex items-center justify-center gap-2 z-20 shrink-0">
+      <a id="btn-youtube-link" href="https://www.youtube.com/@02826k" target="_blank" rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-600/90 hover:bg-red-500 border border-red-400/50 text-white text-xs sm:text-sm font-black shadow transition active:scale-[0.98] whitespace-nowrap">
+        <span>▶</span><span>유튜브 바로가기</span>
+      </a>
+      <button id="btn-admin-pw" type="button"
+        class="hidden items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/55 text-amber-200 text-xs sm:text-sm font-black shadow transition active:scale-[0.98] whitespace-nowrap">
+        <span>🔑</span><span>비밀번호변경</span>
+      </button>
+    </div>
+
     <!-- ==================== LOGIN SCREEN (Compact, No Scroll) ==================== -->
-    <section id="login-screen" class="flex-1 flex items-start sm:items-center justify-center pt-6 px-2.5 pb-4 sm:p-4">
+    <section id="login-screen" class="flex-1 flex items-start sm:items-center justify-center pt-2.5 px-2.5 pb-4 sm:p-4">
       <div class="w-full max-w-md bg-slate-950/88 backdrop-blur-xl border border-amber-500/35 rounded-2xl shadow-2xl p-3.5 sm:p-5 animate-fade-up">
         <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-white/10">
           <div class="flex items-center gap-2.5">
@@ -365,7 +377,7 @@
 
         <form id="login-form" class="mt-3 space-y-2.5">
           <div>
-            <label for="login-id" class="block text-[11px] font-bold text-amber-300 mb-1">ID(한글가능)</label>
+            <label for="login-id" class="block text-[11px] font-bold text-amber-300 mb-1">ID - 한글가능</label>
             <input id="login-id" type="text" maxlength="12" autocomplete="username" placeholder="ID 입력"
               class="w-full bg-slate-900/95 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm font-bold text-white outline-none transition" />
           </div>
@@ -886,6 +898,32 @@
     </div>
   </div>
 
+  <!-- ADMIN PASSWORD RESET MODAL (root only) -->
+  <div id="admin-pw-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-start sm:items-center justify-center pt-10 px-4 pb-4 sm:p-4">
+    <div class="max-w-sm w-full bg-slate-950 border border-amber-400/45 rounded-2xl p-5 shadow-2xl animate-fade-up">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <h3 class="text-base font-black text-amber-200">🔑 비밀번호 변경 (관리자)</h3>
+        <button id="btn-close-admin-pw" type="button" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 font-bold text-xs">✕</button>
+      </div>
+      <form id="admin-pw-form" class="mt-3.5 space-y-3">
+        <div>
+          <label for="admin-target-id" class="block text-[11px] font-bold text-amber-300 mb-1">ID</label>
+          <input id="admin-target-id" type="text" maxlength="12" autocomplete="off" placeholder="변경할 회원 ID 입력"
+            class="w-full bg-slate-900 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm font-bold text-white outline-none transition" />
+        </div>
+        <div>
+          <label for="admin-new-pw" class="block text-[11px] font-bold text-amber-300 mb-1">변경할 비밀번호</label>
+          <input id="admin-new-pw" type="text" maxlength="12" autocomplete="off" placeholder="영문/숫자 4~12자리"
+            class="w-full bg-slate-900 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm font-mono font-bold tracking-wider text-white outline-none transition" />
+        </div>
+        <div id="admin-pw-status" class="hidden text-center text-[11px] font-bold rounded-lg py-1.5 px-2.5"></div>
+        <button id="btn-admin-save-pw" type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-sm shadow transition active:scale-[0.99]">
+          저장
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script>
     (() => {
       'use strict';
@@ -1327,6 +1365,8 @@
         const btnRules = document.getElementById('btn-rules');
         const btnLobby = document.getElementById('btn-lobby');
         const btnLogout = document.getElementById('btn-logout');
+        const topUtilBar = document.getElementById('top-utility-bar');
+        const btnAdminPw = document.getElementById('btn-admin-pw');
 
         if (headerBadge) {
           headerBadge.classList.toggle('hidden', !loggedIn);
@@ -1404,6 +1444,18 @@
           } else {
             btnLogout.classList.add('inline-flex');
           }
+        }
+
+        if (topUtilBar) {
+          const showTopBar = (scr === 'login' || scr === 'lobby');
+          topUtilBar.classList.toggle('hidden', !showTopBar);
+          topUtilBar.classList.toggle('flex', showTopBar);
+        }
+
+        if (btnAdminPw) {
+          const isRootAdmin = loggedIn && auth.user.id === 'root' && isLobby;
+          btnAdminPw.classList.toggle('hidden', !isRootAdmin);
+          btnAdminPw.classList.toggle('inline-flex', isRootAdmin);
         }
 
         if (loggedIn) {
@@ -1580,6 +1632,7 @@
         document.getElementById('result-modal').classList.add('hidden');
         document.getElementById('privacy-modal').classList.add('hidden');
         document.getElementById('rules-modal').classList.add('hidden');
+        document.getElementById('admin-pw-modal').classList.add('hidden');
         document.getElementById('waiting-room-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.add('hidden');
         document.body.classList.remove('in-game-mobile', 'ios-immersive');
@@ -4917,7 +4970,79 @@
         if (sfx.enabled) sfx.select();
       });
 
-      ['rules-modal', 'ingame-chat-modal'].forEach(id => {
+      function setAdminPwStatus(msg, type = 'info') {
+        const el = document.getElementById('admin-pw-status');
+        if (!el) return;
+        if (!msg) {
+          el.classList.add('hidden');
+          return;
+        }
+        el.classList.remove('hidden');
+        el.textContent = msg;
+        if (type === 'error') {
+          el.className = 'text-center text-[11px] font-bold text-rose-200 bg-rose-950/80 border border-rose-400/50 rounded-lg py-1.5 px-2.5';
+        } else if (type === 'success') {
+          el.className = 'text-center text-[11px] font-bold text-emerald-200 bg-emerald-950/80 border border-emerald-400/50 rounded-lg py-1.5 px-2.5';
+        } else {
+          el.className = 'text-center text-[11px] font-bold text-amber-200 bg-amber-500/15 border border-amber-400/35 rounded-lg py-1.5 px-2.5';
+        }
+      }
+
+      document.getElementById('btn-admin-pw').addEventListener('click', () => {
+        if (!auth.user || auth.user.id !== 'root') return;
+        sfx.select();
+        document.getElementById('admin-target-id').value = '';
+        document.getElementById('admin-new-pw').value = '';
+        setAdminPwStatus('');
+        document.getElementById('admin-pw-modal').classList.remove('hidden');
+        document.getElementById('admin-target-id').focus();
+      });
+
+      document.getElementById('btn-close-admin-pw').addEventListener('click', () => {
+        document.getElementById('admin-pw-modal').classList.add('hidden');
+      });
+
+      document.getElementById('admin-pw-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        if (!auth.user || auth.user.id !== 'root') {
+          setAdminPwStatus('관리자(root) 권한이 필요합니다.', 'error');
+          sfx.error();
+          return;
+        }
+        const targetId = document.getElementById('admin-target-id').value.trim();
+        const newPassword = document.getElementById('admin-new-pw').value.trim();
+        if (!targetId || !newPassword) {
+          setAdminPwStatus('ID와 변경할 비밀번호를 모두 입력해주세요.', 'error');
+          sfx.error();
+          return;
+        }
+        const btn = document.getElementById('btn-admin-save-pw');
+        btn.disabled = true;
+        setAdminPwStatus('비밀번호 변경 중...', 'info');
+        const res = await wsAuthRequest({
+          t: 'hoola_admin_reset_password',
+          targetId,
+          newPassword
+        }, 6000);
+        btn.disabled = false;
+
+        if (!res) {
+          setAdminPwStatus('서버 응답이 없습니다. 다시 시도해주세요.', 'error');
+          sfx.error();
+          return;
+        }
+        if (res.t === 'hoola_auth_err') {
+          setAdminPwStatus(res.reason || '비밀번호 변경에 실패했습니다.', 'error');
+          sfx.error();
+          return;
+        }
+        setAdminPwStatus(res.message || `[${targetId}] 비밀번호가 변경되었습니다.`, 'success');
+        document.getElementById('admin-new-pw').value = '';
+        sfx.meld();
+        showToast(res.message || `[${targetId}] 비밀번호 변경 완료`, 'success');
+      });
+
+      ['rules-modal', 'ingame-chat-modal', 'admin-pw-modal'].forEach(id => {
         document.getElementById(id).addEventListener('click', e => {
           if (e.target.id === id) e.currentTarget.classList.add('hidden');
         });
