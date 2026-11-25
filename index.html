@@ -365,7 +365,7 @@
 
         <form id="login-form" class="mt-3 space-y-2.5">
           <div>
-            <label for="login-id" class="block text-[11px] font-bold text-amber-300 mb-1">ID(한글가능)</label>
+            <label for="login-id" class="block text-[11px] font-bold text-amber-300 mb-1">ID - 한글가능</label>
             <input id="login-id" type="text" maxlength="12" autocomplete="username" placeholder="ID 입력"
               class="w-full bg-slate-900/95 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm font-bold text-white outline-none transition" />
           </div>
@@ -1060,7 +1060,7 @@
               try {
                 ws.send(JSON.stringify({
                   ...payload,
-                  pageUrl: window.location.protocol === 'https:' ? window.location.href : OFFICIAL_APP_URL,
+                  pageUrl: window.location.href,
                   token: auth.sessionToken || undefined
                 }));
               } catch (_) { finish(null); }
@@ -1112,7 +1112,6 @@
           if (remote && remote.t === 'hoola_auth_ok' && remote.user) {
             db[remote.user.id] = {
               id: remote.user.id,
-              password: remote.user.password || password,
               points: Number(remote.user.points ?? INITIAL_POINTS),
               createdAt: Date.now()
             };
@@ -1166,7 +1165,6 @@
           if (remote && remote.t === 'hoola_auth_ok' && remote.user) {
             db[remote.user.id] = {
               id: remote.user.id,
-              password: pw.toUpperCase(),
               points: Number(remote.user.points ?? INITIAL_POINTS),
               updatedAt: Date.now()
             };
@@ -1197,7 +1195,6 @@
             if (regRes && regRes.t === 'hoola_auth_ok' && regRes.user) {
               db[regRes.user.id] = {
                 id: regRes.user.id,
-                password: pw.toUpperCase(),
                 points: Number(regRes.user.points ?? INITIAL_POINTS),
                 createdAt: Date.now()
               };
@@ -1241,21 +1238,42 @@
         },
 
         async addPoints(id, delta, roundKey = '') {
-          if (!id || !Number.isFinite(delta) || delta === 0) return;
+          const intDelta = Math.trunc(Number(delta));
+          if (!id || !Number.isFinite(intDelta) || intDelta === 0) return null;
           const db = loadLocalDB();
           if (db[id]) {
-            db[id].points = Number(db[id].points ?? INITIAL_POINTS) + delta;
+            db[id].points = Number(db[id].points ?? INITIAL_POINTS) + intDelta;
             db[id].updatedAt = Date.now();
             saveLocalDB(db);
           }
-          wsAuthRequest({
-            t: 'hoola_auth_update_points',
-            id,
-            delta,
-            roundKey,
-            roomCode: net.roomCode || '',
-            token: auth.sessionToken || ''
-          }, 1200);
+          const MAX_CHUNK = 30000;
+          const chunks = [];
+          let rem = intDelta;
+          while (rem !== 0) {
+            const step = Math.abs(rem) > MAX_CHUNK ? Math.sign(rem) * MAX_CHUNK : rem;
+            chunks.push(step);
+            rem -= step;
+          }
+          const baseKey = String(roundKey || `pt_${Date.now()}`).slice(0, 72);
+          let lastRes = null;
+          for (let i = 0; i < chunks.length; i++) {
+            const chunkKey = chunks.length === 1 ? baseKey : `${baseKey}_p${i + 1}`;
+            lastRes = await wsAuthRequest({
+              t: 'hoola_auth_update_points',
+              id,
+              delta: chunks[i],
+              roundKey: chunkKey,
+              roomCode: net.roomCode || '',
+              token: auth.sessionToken || ''
+            }, 3500);
+            if (!lastRes || lastRes.t !== 'hoola_auth_ok') break;
+          }
+          if (lastRes && lastRes.t === 'hoola_auth_ok' && lastRes.user && db[id]) {
+            db[id].points = Number(lastRes.user.points);
+            db[id].updatedAt = Date.now();
+            saveLocalDB(db);
+          }
+          return lastRes;
         }
       };
 
@@ -1897,7 +1915,7 @@
             net.ws.send(JSON.stringify({
               ...obj,
               token: auth.sessionToken || undefined,
-              pageUrl: window.location.protocol === 'https:' ? window.location.href : OFFICIAL_APP_URL
+              pageUrl: window.location.href
             }));
           } catch (_) {}
         }
@@ -1935,6 +1953,7 @@
       }
 
       const ROOMS_DB_KEY = 'hoola5_rooms_db_v1';
+      const RECONNECT_GRACE_MS = 60000; // 게임 중 튕긴 유저 1분(60초) 내 재접속 복귀 허용
 
       function buildFullRoomSnapshot() {
         return {
@@ -1978,12 +1997,17 @@
       function convertDepartedPlayerToAI(departedId, departedName) {
         const p = state.players.find(pl => pl.peerId === departedId);
         if (!p || p.isAI) return;
+        const origName = p.originalUserId || departedName || p.name.replace(/\s*\(AI\)$/, '');
+        p.originalUserId = origName;
+        p.disconnectedUserId = origName;
+        p.disconnectedName = origName;
+        p.disconnectedAt = Date.now();
         p.isAI = true;
         p.peerId = null;
-        if (!p.name.endsWith('(AI)')) p.name = `${p.name} (AI)`;
-        p.lastAction = 'AI 대리 진행';
+        p.name = `${origName} (AI)`;
+        p.lastAction = 'AI 대리 (1분내 복귀가능)';
 
-        const msgText = `${departedName || p.name}님 퇴장 → AI 대리 진행`;
+        const msgText = `${origName}님 퇴장 → AI 대리 진행 (1분 내 재접속 복귀 가능)`;
         addChatMessage({ system: true, text: msgText });
         broadcastChatMessage({ system: true, text: msgText });
 
@@ -2397,6 +2421,62 @@
           }
 
           if (net.room.status !== 'waiting') {
+            if (net.room.status === 'playing') {
+              const joinUserId = String(msg.name || '').trim();
+              const rejoinPlayer = state.players.find(
+                pl => pl.isAI && pl.disconnectedUserId && pl.disconnectedUserId === joinUserId
+              );
+              if (rejoinPlayer) {
+                const elapsed = Date.now() - Number(rejoinPlayer.disconnectedAt || 0);
+                if (elapsed <= RECONNECT_GRACE_MS) {
+                  const restoredName = rejoinPlayer.disconnectedName || joinUserId;
+                  rejoinPlayer.isAI = false;
+                  rejoinPlayer.peerId = guestId;
+                  rejoinPlayer.name = restoredName;
+                  rejoinPlayer.disconnectedUserId = null;
+                  rejoinPlayer.disconnectedName = null;
+                  rejoinPlayer.disconnectedAt = null;
+                  rejoinPlayer.lastAction = '재접속 복귀!';
+
+                  const existingSeat = net.room.seats.find(s => s.name === restoredName);
+                  if (existingSeat) {
+                    existingSeat.peerId = guestId;
+                    existingSeat.isAI = false;
+                    existingSeat.isHost = false;
+                    existingSeat.ready = true;
+                  } else {
+                    net.room.seats.push({
+                      peerId: guestId,
+                      name: restoredName,
+                      avatar: rejoinPlayer.avatar || '👤',
+                      isAI: false,
+                      isHost: false,
+                      ready: true
+                    });
+                  }
+
+                  if (state.phase !== 'round_over' && state.currentPlayerIdx === rejoinPlayer.id) {
+                    clearTimers();
+                  }
+
+                  const backMsg = `${restoredName}님 재접속으로 게임에 복귀했습니다!`;
+                  addChatMessage({ system: true, text: backMsg });
+                  broadcastChatMessage({ system: true, text: backMsg });
+                  netSendToGuest(guestId, {
+                    type: 'ROOM_SYNC',
+                    room: net.room,
+                    chatHistory: net.chatMessages.slice(-40)
+                  });
+                  renderGame();
+                  broadcastGameState(backMsg, 'success', 'thankyou');
+                  sfx.thankyou();
+                  return;
+                }
+                netSendToGuest(guestId, { type: 'REJECT', reason: '재접속 가능 시간(1분)이 초과되었습니다.' });
+                net.guestIds.delete(guestId);
+                return;
+              }
+            }
             netSendToGuest(guestId, { type: 'REJECT', reason: '게임 진행 중입니다.' });
             net.guestIds.delete(guestId);
             return;
@@ -2533,7 +2613,7 @@
                 return;
               }
               if (msg.t === 'hoola_msg' && msg.payload) {
-                if (msg.payload.type === 'ROOM_SYNC') {
+                if (msg.payload.type === 'ROOM_SYNC' || msg.payload.type === 'STATE_SYNC') {
                   synced = true;
                   clearTimeout(timeoutId);
                   updateConnectionPill('connected');
@@ -2628,7 +2708,7 @@
             let msg;
             try { msg = JSON.parse(rawPayload.toString()); } catch (_) { return; }
             if (!msg || typeof msg !== 'object') return;
-            if (msg.type === 'ROOM_SYNC') {
+            if (msg.type === 'ROOM_SYNC' || msg.type === 'STATE_SYNC') {
               synced = true;
               clearTimeout(timeoutId);
               if (net.joinRetryTimer) { clearInterval(net.joinRetryTimer); net.joinRetryTimer = null; }
@@ -3167,6 +3247,10 @@
         state.players = net.room.seats.map((seat, idx) => ({
           id: idx,
           peerId: seat.peerId,
+          originalUserId: seat.isAI ? null : seat.name,
+          disconnectedUserId: null,
+          disconnectedName: null,
+          disconnectedAt: null,
           name: seat.name,
           avatar: seat.avatar,
           isAI: seat.isAI,
@@ -4621,8 +4705,10 @@
       document.getElementById('btn-result-lobby').addEventListener('click', returnToLobby);
       document.getElementById('btn-lobby').addEventListener('click', returnToLobby);
 
-      document.getElementById('btn-recharge').addEventListener('click', () => {
+      document.getElementById('btn-recharge').addEventListener('click', async e => {
         if (!auth.user) return;
+        const btn = e.currentTarget;
+        if (btn.disabled) return;
         sfx.init();
         const curPts = Number(auth.user.points) || 0;
         if (curPts > INITIAL_POINTS) {
@@ -4635,12 +4721,21 @@
           sfx.select();
           return;
         }
+        btn.disabled = true;
         const delta = INITIAL_POINTS - curPts;
-        auth.user.points = INITIAL_POINTS;
-        AccountDB.addPoints(auth.user.id, delta, `recharge_${Date.now()}`);
+        const res = await AccountDB.addPoints(auth.user.id, delta, `recharge_${Date.now()}`);
+        btn.disabled = false;
+        if (res && res.t === 'hoola_auth_err') {
+          showToast(res.reason || '충전에 실패했습니다.', 'error');
+          sfx.error();
+          return;
+        }
+        auth.user.points = (res && res.user && Number.isFinite(Number(res.user.points)))
+          ? Number(res.user.points)
+          : INITIAL_POINTS;
         syncHeaderUI();
         sfx.meld();
-        showToast(`${delta.toLocaleString('ko-KR')}P 충전 완료! 보유 50,000P`, 'success');
+        showToast(`${delta.toLocaleString('ko-KR')}P 충전 완료! 보유 ${auth.user.points.toLocaleString('ko-KR')}P`, 'success');
       });
 
       document.getElementById('btn-rules').addEventListener('click', () => {
