@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>홀덤9</title>
+<style>
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;color:#fff;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:linear-gradient(#0003,#0000 30%,#0005),repeating-linear-gradient(90deg,#3a2314 0 62px,#22130a 62px 64px)}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+.hid{display:none!important}
+.lf{position:absolute;font-size:24px;opacity:.7;pointer-events:none}
+h1{font-size:40px;letter-spacing:2px;text-shadow:0 3px 0 #000}
+.sub{opacity:.7;margin-top:-6px}
+input{width:100%;max-width:300px;padding:12px;border-radius:10px;border:2px solid #d9b45a;background:#000a;color:#fff;font-size:16px}
+button{padding:11px 14px;border:0;border-radius:10px;font-weight:700;font-size:15px;color:#fff;background:#444;cursor:pointer}
+.b2{background:#2b6cb0}.b3{background:#c8462b}.b1{background:#555}
+#login button,.card button{width:100%;max-width:300px}
+#lerr{color:#ff8a7a;font-size:13px;min-height:18px}
+.card{background:#000b;border:2px solid #d9b45a;border-radius:14px;padding:14px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:10px;max-height:92%;overflow:auto}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rm{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#fff1;border-radius:8px;font-size:14px}
+.rm button{width:auto!important;padding:6px 12px}
+#game{padding:0;gap:0;justify-content:flex-start}
+#tb{position:relative;width:100%;max-width:480px;flex:1;min-height:0}
+#bar{width:100%;max-width:480px;height:122px;background:#000c;padding:6px 10px calc(6px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:5px;justify-content:center}
+.felt{position:absolute;left:6%;top:6%;width:88%;height:77%;border-radius:46%/32%;background:radial-gradient(ellipse at 50% 40%,#2a9d62,#16784a 55%,#0d5233);border:9px solid #151515;box-shadow:0 0 0 3px #3a3a3a,0 12px 40px #000a,inset 0 0 50px #0008}
+#top{position:absolute;top:calc(4px + env(safe-area-inset-top));left:8px;right:8px;display:flex;justify-content:space-between;font-size:12px;z-index:5;align-items:center}
+#top button{padding:3px 10px;font-size:12px;background:#000a}
+#seats{position:absolute;inset:0}
+.seat,.hc,.bt,.dl{position:absolute;transform:translate(-50%,-50%)}
+.seat{width:84px;text-align:center;z-index:3}
+.av{width:52px;height:52px;margin:auto;border-radius:50%;border:2px solid #d9b45a;background:radial-gradient(#556,#223);display:flex;align-items:center;justify-content:center;font-size:28px}
+.on .av{box-shadow:0 0 0 3px #ffd34d,0 0 18px #ffd34d}
+.out{opacity:.35}
+.nm{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px #000;margin-top:1px}
+.st{display:inline-block;background:#000b;border-radius:10px;padding:0 7px;font-size:11px;font-weight:700}
+.tm{position:absolute;top:0;right:4px;background:#ffd34d;color:#000;font-weight:800;border-radius:9px;padding:0 5px;font-size:11px}
+.lb{position:absolute;top:-15px;left:50%;transform:translateX(-50%);padding:0 9px;border-radius:9px;font-size:11px;font-weight:700;background:#c53030;white-space:nowrap}
+.lb[data-l="폴드"]{background:#666}.lb[data-l="콜"],.lb[data-l="체크"]{background:#2b6cb0}
+.hc{z-index:2;display:flex}
+.mine{z-index:4}
+.cd{width:42px;height:60px;border-radius:5px;background:#fff;color:#111;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;margin:0 2px;box-shadow:0 2px 5px #0008;line-height:1.05}
+.cd b{font-size:20px}.cd i{font-style:normal;font-size:20px}
+.rd{color:#d3202f}
+.bk{background:repeating-linear-gradient(45deg,#b3282d 0 4px,#8d1c21 4px 8px);border:2px solid #fff}
+.s{width:24px;height:34px;margin:0 1px}.s b,.s i{font-size:12px}
+.mine .cd{width:52px;height:74px}.mine b,.mine i{font-size:26px}
+.bt{font-size:11px;font-weight:700;background:#000a;border-radius:10px;padding:1px 8px 1px 4px;z-index:2;white-space:nowrap}
+.bt u{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ffd34d;margin-right:3px;vertical-align:-1px}
+.dl{width:20px;height:20px;border-radius:50%;background:#fff;color:#000;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;z-index:2}
+#pot,#brd,#cmsg,#info{position:absolute;left:50%;transform:translateX(-50%);text-align:center;z-index:2;white-space:nowrap}
+#pot{top:25%;font-size:12px;color:#ffd34d;background:#0007;border-radius:12px;padding:2px 12px;font-weight:700}
+#brd{top:31%;display:flex}#brd .cd{width:38px;height:54px}
+#cmsg{top:47%;font-size:12px;color:#ffe9a0;font-weight:700;max-width:70%;white-space:normal}
+#info{top:54%;font-size:11px;line-height:1.55;opacity:.85}
+#rk{position:absolute;left:6px;bottom:6px;background:#b3262c;border:2px solid #ffcf6b;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700;z-index:4}
+#wt{text-align:center;font-size:13px;opacity:.85}
+#ctl{display:flex;flex-direction:column;gap:5px}
+.q{display:flex;gap:5px}.q button{flex:1;padding:5px 0;font-size:12px;background:#2d3748}
+#rg{width:100%}
+.act{display:flex;gap:6px}.act button{flex:1}
+#res{position:absolute;inset:0;background:#000c;z-index:20;display:flex;align-items:center;justify-content:center;text-align:center;font-size:22px;line-height:1.8}
+#res>div{background:#1b1b1b;border:2px solid #d9b45a;border-radius:16px;padding:24px 34px;display:flex;flex-direction:column;gap:14px}
+#res b{font-size:46px;color:#ffd34d}
+</style></head><body>
+
+<div id="login" class="scr">
+ <h1>♠ 홀덤9 ♥</h1><p class="sub">9인 토너먼트 텍사스 홀덤</p>
+ <input id="id" placeholder="ID (2~12자)" maxlength="12" autocomplete="username">
+ <input id="pw" type="password" placeholder="비밀번호 (영문/숫자 4~12자)" maxlength="12" autocomplete="current-password">
+ <button id="lg" class="b3">로그인 / 자동 가입</button>
+ <button id="pr" class="b2">연습 모드 (봇 8명)</button>
+ <div id="lerr"></div>
+</div>
+
+<div id="lobby" class="scr hid"><div class="card">
+ <div class="row"><b id="who"></b><span>💰 <span id="pts"></span>P</span></div>
+ <div id="lst" style="display:flex;flex-direction:column;gap:10px">
+  <button id="mk" class="b3">방 만들기 (참가비 1,000P)</button>
+  <div id="rooms"></div>
+  <button id="pr2" class="b2">연습 모드 (포인트 없음)</button>
+ </div>
+ <div id="wait" class="hid" style="display:flex;flex-direction:column;gap:10px">
+  <h3 id="wc"></h3><div id="wl"></div>
+  <button id="go" class="b3">게임 시작 (빈 자리는 봇)</button>
+  <p id="wg" style="font-size:13px;opacity:.8">방장이 시작하길 기다리는 중...</p>
+  <button id="lv1" class="b1">나가기</button>
+ </div>
+</div></div>
+
+<div id="game" class="scr hid">
+ <div id="tb">
+  <div class="felt"></div>
+  <div id="top"><span id="rcode"></span><button id="ex">나가기</button></div>
+  <div id="pot"></div><div id="brd"></div><div id="cmsg"></div><div id="info"></div>
+  <div id="seats"></div><div id="rk"></div>
+ </div>
+ <div id="bar">
+  <div id="wt"></div>
+  <div id="ctl" class="hid">
+   <div class="q"><button data-f=".5">½ 팟</button><button data-f=".75">¾ 팟</button><button data-f="1">팟</button><button data-f="99">올인</button></div>
+   <input id="rg" type="range">
+   <div class="act"><button id="bf" class="b1">폴드</button><button id="bc" class="b2">체크</button><button id="br" class="b3">레이즈</button></div>
+  </div>
+ </div>
+ <div id="res" class="hid"><div><div id="rt"></div><button id="rb" class="b3">로비로</button></div></div>
+</div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id),R=n=>Math.random()*n|0;
+const WS='wss://kiablo.duckdns.org',START=6000,ENTRY=1000,PAY=[.5,.3,.2],LV=60000,TURN=20000,P5=759375;
+const BL=[[75,150],[100,200],[150,300],[200,400],[300,600],[400,800],[600,1200],[800,1600],[1000,2000],[1500,3000],[2000,4000],[3000,6000]];
+const HN=['하이카드','원페어','투페어','트리플','스트레이트','플러시','풀하우스','포카드','스트레이트 플러시'];
+const BN=['콩이','까망','하늘','민수','별이','도토리','호랑','나비'],BA=['🐱','🐶','🦊','🐻','🐼','🐯','🦁','🐸'];
+const RK=['','','2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const PS=[[50,84],[13,69],[10,50],[13,31],[27,13],[73,13],[87,31],[90,50],[87,69]];
+let ws,tok,uid,pts=0,rc=null,room=null,isHost=false,practice=false,S=[],G={},V=null,paid='',paidOut='',poll=0,ep=0;
+const cid='c'+Date.now().toString(36)+R(9999);
+const later=(f,ms)=>{const e=ep;setTimeout(()=>{if(e==ep)f()},ms)};
+const wsend=o=>{if(ws&&ws.readyState==1)ws.send(JSON.stringify({token:tok,pageUrl:location.href,...o}))};
+const scr=id=>['login','lobby','game'].forEach(s=>$(s).classList.toggle('hid',s!=id));
+const bb=x=>+(x/(V?V.bl[1]:150)).toFixed(1),bbH=x=>+(x/BL[G.lv][1]).toFixed(1);
+const settle=(d,k)=>wsend({t:'hoola_auth_update_points',id:uid,delta:d,roundKey:k});
+
+/* ===== 배경 낙엽 ===== */
+for(let i=0;i<16;i++){const s=document.createElement('span');s.className='lf';s.textContent=['🍁','🍂'][i%2];s.style.cssText=`left:${R(96)}%;top:${R(94)}%;transform:rotate(${R(360)}deg)`;document.body.prepend(s)}
+
+/* ===== 카드 / 족보 ===== */
+function deckNew(){const d=[...Array(52).keys()];for(let i=51;i>0;i--){const j=R(i+1);[d[i],d[j]]=[d[j],d[i]]}return d}
+function sc5(c){
+ const r=c.map(x=>(x>>2)+2).sort((a,b)=>b-a),fl=c.every(x=>(x&3)==(c[0]&3)),n={};
+ r.forEach(x=>n[x]=(n[x]||0)+1);
+ const g=Object.keys(n).map(Number).sort((a,b)=>n[b]-n[a]||b-a),p=g.map(x=>n[x]).join('');
+ let st=0;if(g.length==5){if(r[0]-r[4]==4)st=r[0];else if(r[0]==14&&r[1]==5)st=5}
+ const cat=st&&fl?8:p=='41'?7:p=='32'?6:fl?5:st?4:p=='311'?3:p=='221'?2:p=='2111'?1:0;
+ return [cat,...(st?[st]:g),0,0,0,0,0].slice(0,6).reduce((a,v)=>a*15+v,0)}
+function best(c){let b=0;(function f(i,h){if(h.length==5){b=Math.max(b,sc5(h));return}if(i>=c.length||h.length+c.length-i<5)return;f(i+1,[...h,c[i]]);f(i+1,h)})(0,[]);return b}
+function cd(c,z=''){if(c<0)return`<div class="cd bk ${z}"></div>`;const s=c&3;return`<div class="cd ${z}${s==1||s==2?' rd':''}"><b>${RK[(c>>2)+2]}</b><i>${'♠♥♦♣'[s]}</i></div>`}
+
+/* ===== 호스트 게임 엔진 ===== */
+const live=p=>!p.out&&!p.fold,can=p=>live(p)&&!p.allin;
+const pot=()=>S.reduce((a,p)=>a+p.tot,0);
+function nx(i,f){for(let k=1;k<=S.length;k++){const j=(i+k)%S.length;if(f(S[j]))return j}return -1}
+function put(i,a){const p=S[i],x=Math.min(a,p.stack);p.stack-=x;p.bet+=x;p.tot+=x;if(!p.stack)p.allin=true}
+function view(i){return{t:'V',me:i,gid:G.gid,
+ seats:S.map((p,k)=>({n:p.name,a:p.a,s:p.stack,b:p.bet,f:p.fold&&!p.out,o:p.out,l:p.last,h:p.fold?[]:(k==i||p.show?p.hole:p.hole.map(()=>-1))})),
+ bd:G.board,pot:pot(),to:G.to,cur:G.cur,minR:G.minR,bl:BL[G.lv],nb:BL[Math.min(G.lv+1,BL.length-1)],
+ ms:Math.max(0,G.t0+(G.lv+1)*LV-Date.now()),dl:Math.max(0,G.dl-Date.now()),btn:G.btn,msg:G.msg,rk:G.rk}}
+function sync(){S.forEach((p,k)=>{if(p.bot)return;if(k==0)render(view(0));else wsend({t:'hoola_to_guest',to:p.cid,payload:view(k)})})}
+function snap(){if(rc)wsend({t:'hoola_db_save_snapshot',snapshot:{room:{status:G.on?'playing':'waiting',maxPlayers:9,seats:(G.on?S:room.seats).map(s=>s.name)}}})}
+
+function newHand(){
+ const al=S.filter(p=>!p.out);
+ G.lv=Math.min(BL.length-1,(Date.now()-G.t0)/LV|0);
+ S.forEach(p=>{p.hole=[];p.bet=p.tot=0;p.fold=p.out;p.allin=p.acted=p.show=false;p.last='';p.s0=p.stack});
+ G.btn=nx(G.btn,p=>!p.out);G.deck=deckNew();G.board=[];G.phase=0;G.msg='';
+ const[sb,b2]=BL[G.lv],si=al.length==2?G.btn:nx(G.btn,p=>!p.out),bi=nx(si,p=>!p.out);
+ S.forEach(p=>{if(!p.out)p.hole=[G.deck.pop(),G.deck.pop()]});
+ put(si,sb);put(bi,b2);G.cur=b2;G.minR=b2;
+ step(bi)}
+function step(from){
+ const L=S.filter(live);if(L.length==1)return win1(L[0]);
+ const j=nx(from,p=>can(p)&&(!p.acted||p.bet<G.cur));
+ if(j<0)return nextStreet();
+ G.to=j;G.dl=S[j].bot?0:Date.now()+TURN;sync();
+ if(S[j].bot)later(()=>botAct(j),700+R(900))}
+function nextStreet(){
+ S.forEach(p=>{p.bet=0;p.acted=false;if(p.last!='폴드'&&!p.allin)p.last=''});G.cur=0;G.minR=BL[G.lv][1];G.to=-1;
+ if(G.phase==3)return showdown();
+ G.phase++;for(let i=G.phase==1?3:1;i--;)G.board.push(G.deck.pop());
+ if(S.filter(can).length<2){sync();return later(nextStreet,1400)}
+ step(G.btn)}
+function act(i,a,x){
+ if(i<0||G.to!==i)return;const p=S[i];
+ if(a=='r'){x=Math.min(x|0,p.bet+p.stack);if(x<=G.cur)a='c'}
+ if(a=='f'){p.fold=true;p.last='폴드'}
+ else if(a=='c'){const c=Math.min(G.cur-p.bet,p.stack);put(i,c);p.last=p.allin?'올인':c?'콜':'체크'}
+ else{x=Math.max(x,Math.min(G.cur+G.minR,p.bet+p.stack));const d=x-G.cur;
+  if(d>=G.minR){G.minR=d;S.forEach((q,k)=>{if(k!=i)q.acted=false})}
+  p.last=p.stack+p.bet==x?'올인':G.cur?'레이즈':'벳';put(i,x-p.bet);G.cur=x}
+ p.acted=true;G.to=-1;step(i)}
+function win1(w){const g=pot();w.stack+=g;G.msg=`🏆 ${w.name} +${bbH(g-w.tot)}BB`;endHand()}
+function showdown(){
+ S.forEach(p=>{if(live(p))p.show=true});
+ const all=S.filter(p=>p.tot>0),W={};let top=0;
+ while(all.some(p=>p.tot>0)){
+  const el=all.filter(p=>live(p)&&p.tot>0);if(!el.length)break;
+  const m=Math.min(...el.map(p=>p.tot));let a=0;all.forEach(p=>{const t=Math.min(p.tot,m);a+=t;p.tot-=t});
+  const sc=el.map(p=>best([...p.hole,...G.board])),mx=Math.max(...sc),w=el.filter((p,k)=>sc[k]==mx);
+  top=Math.max(top,mx);
+  w.forEach((p,k)=>{const g=(a/w.length|0)+(k?0:a%w.length),i=S.indexOf(p);p.stack+=g;W[i]=(W[i]||0)+g})}
+ G.msg='🏆 '+Object.keys(W).map(i=>`${S[i].name} +${bbH(W[i])}BB`).join(', ')+` (${HN[top/P5|0]})`;
+ endHand()}
+function endHand(){
+ S.forEach(p=>{p.bet=0;p.tot=0});G.to=-1;
+ const b=[];S.forEach((p,k)=>{if(!p.out&&p.stack<=0)b.push(k)});
+ b.sort((x,y)=>S[x].s0-S[y].s0).forEach(k=>{S[k].out=true;G.bust.push(k)});
+ if(S.filter(p=>!p.out).length<2){G.rk=[S.findIndex(p=>!p.out),...G.bust.slice().reverse()];return sync()}
+ sync();later(newHand,4200)}
+function botAct(i){
+ const p=S[i];if(G.to!==i)return;
+ const cl=Math.min(G.cur-p.bet,p.stack),po=pot(),h=p.hole;let s;
+ if(G.board.length<3){const a=(h[0]>>2)+2,b=(h[1]>>2)+2,hi=Math.max(a,b),lo=Math.min(a,b);
+  s=a==b?.45+(hi-2)*.046:(hi+lo-5)/23*.62+((h[0]&3)==(h[1]&3)?.07:0)+(hi-lo<3?.04:0)}
+ else s=[.15,.42,.66,.76,.85,.88,.95,.99,1][best([...h,...G.board])/P5|0];
+ s+=Math.random()*.2-.1;
+ if(cl>0&&s<cl/(po+cl)+.08&&!(cl<=G.minR*.5&&s>.25))return act(i,'f');
+ if(s>.72&&Math.random()<.65)return act(i,'r',Math.max(G.cur+G.minR,G.cur+Math.round(po*(.4+Math.random()*.5))));
+ act(i,'c')}
+function startGame(){
+ let n=0;while(room.seats.length<9){room.seats.push({name:BN[n],a:BA[n],bot:true});n++}
+ S=room.seats.map(s=>({...s,stack:START,out:false,hole:[],bet:0,tot:0,fold:false,allin:false,acted:false,show:false,last:'',s0:START}));
+ G={on:true,gid:Math.random().toString(36).slice(2,8),t0:Date.now(),btn:R(9),bust:[],lv:0,to:-1,dl:0,board:[]};
+ G.ti=setInterval(()=>{if(G.to>=0&&!S[G.to].bot&&Date.now()>G.dl)act(G.to,S[G.to].bet<G.cur?'f':'c')},500);
+ snap();$('rcode').textContent=rc?'방 #'+rc:'연습 모드';newHand()}
+
+/* ===== 화면 렌더 (호스트/참가자 공용) ===== */
+function render(v){
+ V=v;v.rt=Date.now();if($('game').classList.contains('hid'))scr('game');
+ if(tok&&!practice&&paid!=v.gid){paid=v.gid;settle(-ENTRY,v.gid+'_i')}
+ const cx=50,cy=45,mine=v.seats[v.me];let h='',alive=0;
+ v.seats.forEach((s,i)=>{if(!s.o)alive++;
+  const k=(i-v.me+9)%9,[x,y]=PS[k];
+  h+=`<div class="seat${v.to==i?' on':''}${s.o?' out':''}" style="left:${x}%;top:${y}%">${s.l&&!s.o?`<div class="lb" data-l="${s.l}">${s.l}</div>`:''}<div class="av">${s.a}</div><div class="nm">${s.n}</div><div class="st">${s.o?'탈락':bb(s.s)+'BB'}</div>${v.to==i&&v.dl?`<div class="tm">${v.dl/1000|0}</div>`:''}</div>`;
+  if(k&&s.h.length)h+=`<div class="hc" style="left:${x+(cx-x)*.2}%;top:${y+(cy-y)*.1}%">${s.h.map(c=>cd(c,'s')).join('')}</div>`;
+  if(!k&&s.h.length)h+=`<div class="hc mine" style="left:77%;top:${y}%">${s.h.map(c=>cd(c)).join('')}</div>`;
+  if(s.b)h+=`<div class="bt" style="left:${x+(cx-x)*.45}%;top:${y+(cy-y)*.45}%"><u></u>${bb(s.b)}BB</div>`;
+  if(v.btn==i&&!s.o)h+=`<div class="dl" style="left:${x+(cx-x)*.3+(x<50?7:-7)}%;top:${y+(cy-y)*.3+4}%">D</div>`});
+ $('seats').innerHTML=h;
+ $('brd').innerHTML=v.bd.map(c=>cd(c)).join('');
+ $('pot').textContent='Pot: '+bb(v.pot)+'BB';
+ $('cmsg').textContent=v.msg||'';
+ $('info').innerHTML=`블라인드 : ${v.bl[0]} / ${v.bl[1]}<br>다음 블라인드 : ${v.nb[0]} / ${v.nb[1]}<br>블라인드 업 : <span id="ms"></span>`;
+ $('rk').textContent=mine.o?'탈락':`현재순위 ${1+v.seats.filter(s=>!s.o&&s.s>mine.s).length} / ${alive}`;
+ const my=v.to==v.me&&!v.rk;$('ctl').classList.toggle('hid',!my);
+ $('wt').textContent=my||v.rk?'':mine.o?'관전 중':mine.f?'폴드 — 다음 핸드 대기':v.to>=0?`${v.seats[v.to].n}님의 차례`:'';
+ if(my){const cl=Math.min(v.cur-mine.b,mine.s),mx=mine.b+mine.s,mn=Math.min(v.cur+v.minR,mx),rg=$('rg'),canR=mx>v.cur;
+  $('bc').textContent=cl?`콜 ${bb(cl)}BB`:'체크';
+  [rg,$('br'),document.querySelector('.q')].forEach(e=>e.classList.toggle('hid',!canR));
+  rg.min=mn;rg.max=mx;rg.step=1;rg.value=mn;
+  rg.oninput=setR;setR();
+  function setR(){const x=+rg.value;$('br').textContent=x>=mx?'올인':`${v.cur?'레이즈':'벳'} ${bb(x)}BB`}
+  document.querySelectorAll('.q button').forEach(b=>b.onclick=()=>{rg.value=Math.min(mx,Math.max(mn,v.cur+Math.round(+b.dataset.f*(v.pot+cl))));setR()})}
+ if(v.rk){const r=v.rk.indexOf(v.me)+1,pay=Math.round(ENTRY*9*(PAY[r-1]||0));
+  $('res').classList.remove('hid');
+  $('rt').innerHTML=`게임 종료<br><b>${r}위</b>`+(tok&&!practice?`<br>상금 ${pay.toLocaleString()}P`:'');
+  if(tok&&!practice&&paidOut!=v.gid){paidOut=v.gid;if(pay)settle(pay,v.gid+'_o')}}
+ else $('res').classList.add('hid')}
+setInterval(()=>{if(!V)return;const e=Date.now()-V.rt,m=Math.max(0,V.ms-e)/1000|0,el=$('ms');
+ if(el)el.textContent=String(m/60|0).padStart(2,'0')+'m '+String(m%60).padStart(2,'0')+'s';
+ const t=document.querySelector('.on .tm');if(t)t.textContent=Math.max(0,(V.dl-e)/1000|0)},1000);
+const send=(a,x)=>{$('ctl').classList.add('hid');if(isHost)act(V.me,a,x);else wsend({t:'hoola_to_host',payload:{t:'A',a,x}})};
+$('bf').onclick=()=>send('f');$('bc').onclick=()=>send('c');$('br').onclick=()=>send('r',+$('rg').value);
+
+/* ===== 로비 / 대기실 / 네트워크 ===== */
+function toLobby(){scr('lobby');$('who').textContent=uid;$('pts').textContent=pts.toLocaleString();
+ $('lst').classList.remove('hid');$('wait').classList.add('hid');
+ clearInterval(poll);poll=setInterval(()=>{if(!rc&&!$('lobby').classList.contains('hid'))wsend({t:'hoola_list_rooms'})},3000);wsend({t:'hoola_list_rooms'})}
+function drawRooms(rs){const l=rs.filter(r=>String(r.code)[0]=='9');
+ $('rooms').innerHTML=l.length?l.map(r=>`<div class="rm"><span>#${r.code} ${r.hostId} · ${r.playerCount}/${r.maxPlayers}</span><button class="b2" data-c="${r.code}" ${r.status=='playing'?'disabled':''}>${r.status=='playing'?'진행중':'입장'}</button></div>`).join(''):'<div class="rm">열린 방이 없습니다. 방을 만들어 보세요!</div>'}
+$('rooms').onclick=e=>{const c=e.target.dataset.c;if(c)joinRoom(c)};
+function showWait(n){$('lst').classList.add('hid');$('wait').classList.remove('hid');$('wc').textContent='방 #'+rc;
+ $('wl').innerHTML=n.map((x,i)=>`<div class="rm">${i?'😎':'👑'} ${x}</div>`).join('');
+ $('go').classList.toggle('hid',!isHost);$('wg').classList.toggle('hid',isHost)}
+function mkRoom(){if(pts<ENTRY)return alert('포인트가 부족합니다. (참가비 '+ENTRY+'P)');
+ wsend({t:'hoola_host',code:'9'+String(R(1000)).padStart(3,'0'),clientId:cid})}
+function joinRoom(c){if(pts<ENTRY)return alert('포인트가 부족합니다. (참가비 '+ENTRY+'P)');rc=c;showWait(['연결 중...']);wsend({t:'hoola_join',code:c,clientId:cid})}
+function roomSync(){const n=room.seats.map(s=>s.name);showWait(n);
+ room.seats.slice(1).forEach(s=>wsend({t:'hoola_to_guest',to:s.cid,payload:{t:'W',n}}));snap()}
+function fromGuest(f,p){
+ if(!room)return;
+ if(p.type=='JOIN'){
+  if(G.on||room.seats.length>=9)return wsend({t:'hoola_to_guest',to:f,payload:{type:'REJECT',reason:'입장할 수 없는 방입니다.'}});
+  if(room.seats.some(s=>s.cid==f))return;
+  room.seats.push({name:p.name,a:'😎',cid:f});roomSync()}
+ else if(p.t=='A'){const i=S.findIndex(s=>s.cid==f);if(i>=0)act(i,p.a,p.x)}}
+function guestLeft(c){if(!room)return;
+ if(!G.on){room.seats=room.seats.filter(s=>s.cid!=c);roomSync()}
+ else{const i=S.findIndex(s=>s.cid==c);if(i>=0){S[i].bot=true;S[i].name+='(AI)';if(G.to==i)later(()=>botAct(i),900);sync()}}}
+function fromHost(p){
+ if(p.t=='V')render(p);
+ else if(p.t=='W'&&!V)showWait(p.n);
+ else if(p.type=='REJECT'||p.type=='KICKED'){alert(p.reason||'방에서 나갔습니다.');leave()}}
+function leave(){ep++;clearInterval(G.ti);if(rc&&!practice)wsend({t:'hoola_leave'});
+ rc=null;room=null;isHost=false;practice=false;S=[];G={};V=null;$('res').classList.add('hid');tok?toLobby():scr('login')}
+function onMsg(m){switch(m.t){
+ case 'hoola_auth_ok':if(m.token){tok=m.token;uid=m.user.id;pts=m.user.points;toLobby()}else if(m.user){pts=m.user.points;$('pts').textContent=pts.toLocaleString()}break;
+ case 'hoola_auth_err':if(tok)console.warn(m.reason);else $('lerr').textContent=m.reason;break;
+ case 'hoola_rooms_list':drawRooms(m.rooms);break;
+ case 'hoola_hosted':rc=m.code;isHost=true;G={};room={seats:[{name:uid,a:'😎',cid}]};roomSync();break;
+ case 'hoola_code_taken':mkRoom();break;
+ case 'hoola_from_guest':fromGuest(m.from,m.payload);break;
+ case 'hoola_msg':fromHost(m.payload);break;
+ case 'hoola_guest_left':guestLeft(m.clientId);break;
+ case 'hoola_promote_host':alert('방장이 나가 방이 종료되었습니다.');leave();break}}
+function practiceStart(){practice=true;isHost=true;rc=null;room={seats:[{name:uid||'나',a:'😎',cid}]};startGame()}
+
+$('lg').onclick=()=>{const id=$('id').value.trim(),pw=$('pw').value.trim();if(!id||!pw)return;
+ $('lerr').textContent='접속 중...';ws=new WebSocket(WS);
+ ws.onopen=()=>{wsend({t:'hoola_auth_login',id,password:pw});setInterval(()=>wsend({t:'hoola_ping'}),20000)};
+ ws.onmessage=e=>{try{onMsg(JSON.parse(e.data))}catch(_){}};
+ ws.onerror=()=>{$('lerr').textContent='서버에 연결할 수 없습니다.'};
+ ws.onclose=()=>{if(tok){alert('서버 연결이 끊겼습니다.');location.reload()}}};
+$('pr').onclick=practiceStart;$('pr2').onclick=practiceStart;
+$('mk').onclick=mkRoom;$('go').onclick=()=>{if(isHost&&room&&!G.on)startGame()};
+$('lv1').onclick=leave;$('rb').onclick=leave;$('ex').onclick=()=>{if(confirm('게임에서 나갈까요?'))leave()};
+</script></body></html>
