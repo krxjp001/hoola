@@ -1718,6 +1718,7 @@
         discardCountOverride: null,
         tableMelds: [],
         currentPlayerIdx: 0,
+        lastRoundWinnerIdx: null,
         viewingPlayerIdx: 0,
         phase: 'draw',
         selectedCardIds: new Set(),
@@ -3452,6 +3453,7 @@
         if (net.room.seats.length < 2) return;
         net.room.status = 'playing';
         state.round = 1;
+        state.lastRoundWinnerIdx = null;
         state.roundHistory = [];
         state.players = net.room.seats.map((seat, idx) => ({
           id: idx,
@@ -3510,7 +3512,16 @@
           p.lastAction = '';
         }
 
-        state.currentPlayerIdx = (state.round - 1) % state.players.length;
+        // 첫 판: 랜덤 선공 / 이후 판: 전판 승자가 선공
+        if (
+          state.lastRoundWinnerIdx !== null &&
+          state.lastRoundWinnerIdx >= 0 &&
+          state.lastRoundWinnerIdx < state.players.length
+        ) {
+          state.currentPlayerIdx = state.lastRoundWinnerIdx;
+        } else {
+          state.currentPlayerIdx = Math.floor(Math.random() * state.players.length);
+        }
         if (net.mode === 'offline') {
           const firstHuman = state.players.findIndex(p => !p.isAI);
           state.viewingPlayerIdx = firstHuman >= 0 ? firstHuman : 0;
@@ -4029,6 +4040,7 @@
           deltas: [...deltas]
         });
         state.lastResultModal = { winnerIdx, deltas, title, subtitle, isHoola, ranks };
+        state.lastRoundWinnerIdx = winnerIdx;
 
         renderGame();
         broadcastGameState(title, 'success', 'win');
